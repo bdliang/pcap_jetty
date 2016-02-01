@@ -73,9 +73,7 @@ public class PropertyUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        String cleantime = pps.getProperty("cleantime");
-
+        // String cleantime = pps.getProperty("cleantime");
     }
 
     public static void loadPortsMapFromFile() {
