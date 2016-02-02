@@ -114,7 +114,7 @@ public class CaptureCore implements Runnable {
 
         capNum = 0;
         int loopNumTmp = loopNum;
-        while (IS_CAPTURE && loopNumTmp > 0 && Pcap.OK == pcap.loop(eachCatch, myhandler, "jNetPcap rocks!")) {
+        while (IS_CAPTURE && loopNumTmp > 0 && Pcap.OK == pcap.loop(eachCatch, myhandler, null)) {
             --loopNumTmp;
             capNum += eachCatch;
             if (1 == loopNumTmp && allTime)

@@ -1,9 +1,18 @@
 package pcap.record;
 
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class UrlRecord {
+
+    // 用于转化json时字段控制
+    public static final JsonConfig config = new JsonConfig();
+    static {
+        config.setExcludes(null);
+    }
 
     private int ip;
     private int port;
@@ -136,6 +145,11 @@ public class UrlRecord {
             }
             return OTHER;
         }
+    }
+
+    @Override
+    public String toString() {
+        return JSONObject.fromObject(this).toString();
     }
 
 }

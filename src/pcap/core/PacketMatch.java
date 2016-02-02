@@ -5,7 +5,6 @@ import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
 import pcap.table.TcpTable;
-import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
 public class PacketMatch {
@@ -31,33 +30,7 @@ public class PacketMatch {
 
     public void handlePacket(PcapPacket packet) {
         if (packet.hasHeader(tcp)) {
-            // handleTcp4Test(packet);
             handleTcp(packet);
-        }
-    }
-
-    public void handleIp(PcapPacket packet) {
-        ;
-    }
-
-    public void handleTcp4Test(PcapPacket packet) {
-
-        if (!packet.hasHeader(ip)) {
-            System.err.println("It is a tcp packet, but not ip packet!");
-            return;
-        }
-
-        int srcPort = tcp.source();
-        int dstPort = tcp.destination();
-        String ipSrc = BasicUtils.IpAddrToString(ip.source());
-        String ipDst = BasicUtils.IpAddrToString(ip.destination());
-        int index = PropertyUtils.hasPort(srcPort, dstPort);
-        index = PropertyUtils.DeCode(index);
-
-        if (PropertyUtils.NOT_FOUND != index) {
-            String str = PropertyUtils.AppLayerName(index);
-            System.out.println(str + " : " + ipSrc + "." + srcPort + " " + ipDst + "." + dstPort);
-        } else {
         }
     }
 
@@ -87,7 +60,7 @@ public class PacketMatch {
             dstIp = ip.sourceToInt();
         }
 
-        // System.err.println("\t" + srcPort + " " + +dstPort + " ");
+        // System.out.println("\t" + srcPort + " " + +dstPort + " ");
         int index = PropertyUtils.hasPort(srcPort, dstPort);
         if (index < 0)
             return;

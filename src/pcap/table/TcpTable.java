@@ -7,7 +7,12 @@ import pcap.record.TcpRecord;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +54,6 @@ public class TcpTable implements TableAction {
             record = new TcpRecord(ipSrc, portSrc, ipDst, portDst, index);
             map.put(portPair, record);
         }
-
         decodePacket(tcp, record, timeStamp);
     }
 
@@ -65,15 +69,15 @@ public class TcpTable implements TableAction {
         ipPair = BasicUtils.ping2Int(ipSrc, ipDst);
         portPair = BasicUtils.ping2port(portSrc, portDst);
 
-        if (ipMapPort.containsKey(ipPair)) {
-            searchPortMapLink(ipMapPort.get(ipPair), portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
+        Map<Integer, TcpRecord> subMap = ipMapPort.get(ipPair);
+        if (null != subMap) {
+            searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         } else {
-            Map<Integer, TcpRecord> tmp = new ConcurrentHashMap<Integer, TcpRecord>();
-            ipMapPort.put(ipPair, tmp);
-            searchPortMapLink(tmp, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
+            subMap = new ConcurrentHashMap<Integer, TcpRecord>();
+            ipMapPort.put(ipPair, subMap);
+            searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         }
     }
-
     /**
      * 从记录的tcp中选择， 源或目的是指定ip的，并且端口有http的tcp连接。
      * 
@@ -129,12 +133,38 @@ public class TcpTable implements TableAction {
         if (0 == type.length()) {
             return;
         } else if (type.equals("http")) {
-            HttpDecode.decode(tcp.getPayload(), record, timeStamp);
+            HttpDecode.decode(tcp, record, timeStamp);
         } else if (type.equals("mysql")) {
         } else if (type.equals("pgsql")) {
         } else if (type.equals("redis")) {
         } else if (type.equals("mongodb")) {
         } else if (type.equals("ldap")) {
+        }
+    }
+
+    @Override
+    public void dumpToFile() {
+        File file = new File(TableAction.filePath);
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWritter = new FileWriter(file.getName(), true);
+            BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+            bufferWritter.write(new Date(System.currentTimeMillis()).toString() + "\n");
+            bufferWritter.write("#### Tcp Record ####\n");
+            for (Map.Entry<Long, Map<Integer, TcpRecord>> entry : ipMapPort.entrySet()) {
+                String src = BasicUtils.intToIp(BasicUtils.getHigh4BytesFromLong(entry.getKey()));
+                String dst = BasicUtils.intToIp(BasicUtils.getLow4BytesFromLong(entry.getKey()));
+                bufferWritter.write(src + " " + dst + "\n");
+                for (TcpRecord record : entry.getValue().values()) {
+                    bufferWritter.write("\t" + record.toString() + "\n");
+                }
+            }
+            bufferWritter.write("\n");
+            bufferWritter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

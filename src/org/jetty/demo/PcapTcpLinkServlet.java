@@ -21,9 +21,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class PcapTcpLinkServlet extends HttpServlet {
-    // 访问url反参数
+
+    /**
+     * ip filter访问这个类
+     * */
+    /**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 9195708116937048440L;
+
     private static Log log = LogFactory.getLog(PcapTcpLinkServlet.class);
-    // 请求url中的参数 是json
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -85,7 +92,6 @@ public class PcapTcpLinkServlet extends HttpServlet {
     }
 
     private String getStringResultByUrl(String infoUrl) {
-        // TODO Auto-generated method stub
         String result = null;
         HttpGet request = null;
         HttpClient client = null;

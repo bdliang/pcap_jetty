@@ -1,5 +1,7 @@
 package pcap.record;
 
+import net.sf.json.JsonConfig;
+import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
 public class TcpRecord {
@@ -17,6 +19,13 @@ public class TcpRecord {
      * */
 
     public static final String SEPERATOR = " ";
+
+    // 用于转化json时字段控制
+    public static final JsonConfig config = new JsonConfig();
+    static {
+        // 只要设置这个数组，指定过滤哪些字段。
+        config.setExcludes(new String[]{"info", "type", "timeStamp"});
+    }
 
     /* 用于标明该tcp链接的状态 */
     public static final int NULL_STATUS = 0;
@@ -72,7 +81,7 @@ public class TcpRecord {
         return portDst;
     }
 
-    public TcpRecord(int ipSrc, int ipDst, int portSrc, int portDst, int index) {
+    public TcpRecord(int ipSrc, int portSrc, int ipDst, int portDst, int index) {
         this.ipSrc = ipSrc;
         this.ipDst = ipDst;
         this.portSrc = portSrc;
@@ -146,4 +155,9 @@ public class TcpRecord {
         this.timeStamp = timeStamp;
     }
 
+    @Override
+    public String toString() {
+        return "[src:" + BasicUtils.intToIp(ipSrc) + "." + portSrc + " dst:" + BasicUtils.intToIp(ipDst) + "." + portDst + " type:"
+                + this.getType() + "]";
+    }
 }

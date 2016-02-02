@@ -31,11 +31,11 @@ public class BasicUtils {
         }
     }
 
-    public static void PrintIpAddr(byte[] addr) {
+    public static void printIpAddr(byte[] addr) {
         System.out.println(IpAddrToString(addr));
     }
 
-    public static String MacAddrToString(byte[] addr) {
+    public static String macAddrToString(byte[] addr) {
         if (ETHERNET_HEADER_LEN != addr.length)
             return null;
         else {
@@ -49,8 +49,8 @@ public class BasicUtils {
         }
     }
 
-    public static void PrintMacAddr(byte[] addr) {
-        System.out.println(MacAddrToString(addr));
+    public static void printMacAddr(byte[] addr) {
+        System.out.println(macAddrToString(addr));
     }
 
     public static boolean isArrayValid(Object[] array) {
@@ -134,7 +134,7 @@ public class BasicUtils {
         return str.toString();
     }
 
-    public static int IpStringToInt(String ipStr) {
+    public static int ipStringToInt(String ipStr) {
         String[] fields = ipStr.split("\\.");
         if (4 != fields.length)
             return 0;
@@ -148,5 +148,16 @@ public class BasicUtils {
             result += tmp;
         }
         return result;
+    }
+
+    public static void printTcpPayLoad(byte[] payload) {
+        if (null == payload)
+            return;
+        for (int i = 0; i < payload.length; ++i) {
+            // if (0 == i % 48)
+            // System.out.println();
+            System.out.print((char) payload[i]);
+        }
+        System.out.println();
     }
 }

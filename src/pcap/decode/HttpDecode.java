@@ -1,5 +1,7 @@
 package pcap.decode;
 
+import org.jnetpcap.protocol.tcpip.Tcp;
+
 import pcap.record.TcpRecord;
 import pcap.record.UrlRecord;
 import pcap.table.UrlTable;
@@ -41,9 +43,6 @@ public class HttpDecode {
      * */
     public static int[] HTTP_METHOD_CODE;
 
-    /**
-     * 将
-     * */
     public static void generateMETHODCODE() {
         HTTP_METHOD_CODE = new int[HTTP_METHOD.length];
         for (int i = 0; i < HTTP_METHOD.length; ++i) {
@@ -60,12 +59,11 @@ public class HttpDecode {
     public static int isBytesHTTPHeader(byte[] raw) {
         if (null == raw || 4 >= raw.length)
             return NOT_HTTP;
-        int tmp = DecodeUtils.pin4bytes(raw[0], raw[1], raw[2], raw[3]);
+        int tmp = DecodeUtils.pin3bytes(raw[0], raw[1], raw[2]);
         for (int i = 0; i < HTTP_METHOD_CODE.length; ++i) {
             if (tmp == HTTP_METHOD_CODE[i])
                 return i;
         }
-
         return NOT_HTTP;
     }
 
@@ -74,8 +72,9 @@ public class HttpDecode {
      * */
     public static String getHttpHeader(byte[] raw) {
         int httpType = isBytesHTTPHeader(raw);
-        if (NOT_HTTP == httpType)
+        if (NOT_HTTP == httpType) {
             return null;
+        }
 
         StringBuilder buf = new StringBuilder();
         int match = 0;
@@ -118,6 +117,12 @@ public class HttpDecode {
             if (-1 == start)
                 return;
             urlRecord.addTimeRecord(timeStamp - start, start);
+
+            // System.out.println("RESPONSE  " +
+            // UrlTable.getInstance().getNum());
+            // System.out.println(c[0]);
+            // System.out.println(c[1]);
+            // System.out.println(c[2] + "\n");
         } else {
             // request
             // c[0] --- method
@@ -129,79 +134,95 @@ public class HttpDecode {
             record.setInfo(url);
             UrlRecord urlRecord = UrlTable.getInstance().getUrlRecord(record.typeIp(), record.typePort(), url);
             urlRecord.addItem(c[0]);
+
+            // System.out.println("REQUEST  " +
+            // UrlTable.getInstance().getNum());
+            // // System.out.println(c[0]);
+            // System.out.println(url);
+            // System.out.println(c[2] + "\n");
         }
     }
 
     public static String urlDivide(String rawUrl) {
         if (null == rawUrl)
             return null;
-        int x = rawUrl.indexOf('?');
-        return rawUrl.substring(0, x);
+        int index = rawUrl.indexOf('?');
+        if (-1 == index)
+            return rawUrl;
+        return rawUrl.substring(0, index);
     }
 
-    public static void decode(byte[] payload, TcpRecord record, long timeStamp) {
-        if (null == payload || null == record)
-            return;
+    public static void decode(Tcp tcp, TcpRecord record, long timeStamp) {
 
-        /* 判断是否是含有http包头的包 */
-        String httpHeader = getHttpHeader(payload);
-        if (httpHeader == null)
-            return;
+        try {
+            byte[] payload = tcp.getPayload();
+            if (null == payload || null == record)
+                return;
 
-        String[] lines = httpHeader.split("\r\n|\n");
-
-        StringBuilder buf = new StringBuilder();
-        // buf.setLength(0);
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            if (line.length() == 0) {
-                continue; // Skip 0 length/blank lines
+            // System.out.println("#### " + tcp.getPayloadLength() + " --- " +
+            // payload.length);
+            /* 判断是否是含有http包头的包 */
+            String httpHeader = getHttpHeader(payload);
+            if (httpHeader == null) {
+                return;
             }
+            // System.out.println("@@@@");
+            // System.out.println(httpHeader);
 
-            /*
-             * First check if lines need to be combined if first character is a
-             * space or a tab. This indicates line continuation and all leading
-             * white space is replaced with a single space.
-             */
-            char firstChar = line.charAt(0);
-            if (firstChar == ' ' || firstChar == '\t') {
-                line = line.trim();
-                if (buf.length() != 0) {
-                    buf.append(' ');
+            String[] lines = httpHeader.split("\r\n|\n");
+
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i];
+                if (line.length() == 0) {
+                    continue; // Skip 0 length/blank lines
                 }
 
-                buf.append(line);
-                continue;
-            } else {
                 /*
-                 * Check if we have any buffered string in the buffer from the
-                 * recombining process. If yes, we make take the string out of
-                 * the buffer and process it, while we decrement i pointer, to
-                 * rerun the lines[i] which was just used as an indicator that
-                 * no more lines are to be recombined.
+                 * First check if lines need to be combined if first character
+                 * is a space or a tab. This indicates line continuation and all
+                 * leading white space is replaced with a single space.
                  */
-                if (buf.length() != 0) {
-                    line = buf.toString();
-                    buf.setLength(0);
-                    i--;
-                }
-            }
+                char firstChar = line.charAt(0);
+                if (firstChar == ' ' || firstChar == '\t') {
+                    line = line.trim();
+                    if (buf.length() != 0) {
+                        buf.append(' ');
+                    }
 
-            String c[] = line.split(":", 2);
-            if (c.length == 1) {
-                if (c[0].length() > 0) {
-                    decodeFirstLine(c[0], record, timeStamp);
+                    buf.append(line);
+                    continue;
+                } else {
+                    /*
+                     * Check if we have any buffered string in the buffer from
+                     * the recombining process. If yes, we make take the string
+                     * out of the buffer and process it, while we decrement i
+                     * pointer, to rerun the lines[i] which was just used as an
+                     * indicator that no more lines are to be recombined.
+                     */
+                    if (buf.length() != 0) {
+                        line = buf.toString();
+                        buf.setLength(0);
+                        i--;
+                    }
+                }
+
+                if (0 == i) {
+                    decodeFirstLine(line, record, timeStamp);
                     break;// 目前只需要第一行的参数，所以在这里就解析退出了。
                 }
-                continue;
-            }
 
-            if (c.length < 2) {
-                continue; // We need at least 2 sections or something is wrong
+                String c[] = line.split(":", 2);
+
+                if (c.length < 2) {
+                    continue; // We need at least 2 sections or something is
+                              // wrong
+                }
+                // 当程序执行到这里时，以成功解析 (2)头部
+                // System.out.printf("HttpDecode : [%s]=[%s]\n", c[0], c[1]);
             }
-            // 当程序执行到这里时，以成功解析 (2)头部
-            // System.out.printf("HttpDecode : [%s]=[%s]\n", c[0], c[1]);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
 }

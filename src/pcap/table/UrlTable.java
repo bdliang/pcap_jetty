@@ -6,6 +6,10 @@ import pcap.result.UrlLastTime;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +43,14 @@ public class UrlTable implements TableAction {
         return single;
     }
 
+    public int getNum() {
+        int cnt = 0;
+        for (Map<String, UrlRecord> subMap : map.values()) {
+            cnt += subMap.size();
+        }
+        return cnt;
+    }
+
     /**
      * 在UrlTable中， 查找 ip, port, url对应的记录
      * 
@@ -50,16 +62,17 @@ public class UrlTable implements TableAction {
             return null;
 
         long key = BasicUtils.ping2Int(ip, port);
-        Map<String, UrlRecord> tmp = map.get(key);
-        if (null == tmp) {
-            tmp = new HashMap<String, UrlRecord>();
+        Map<String, UrlRecord> subMap = map.get(key);
+        if (null == subMap) {
+            subMap = new HashMap<String, UrlRecord>();
             record = new UrlRecord(ip, port, url);
-            tmp.put(url, record);
+            subMap.put(url, record);
+            map.put(key, subMap);
         } else {
-            record = tmp.get(url);
+            record = subMap.get(url);
             if (null == record) {
                 record = new UrlRecord(ip, port, url);
-                tmp.put(url, record);
+                subMap.put(url, record);
             }
         }
         return record;
@@ -245,5 +258,31 @@ public class UrlTable implements TableAction {
             subMap.clear();
         }
         map.clear();
+    }
+
+    @Override
+    public void dumpToFile() {
+        File file = new File(TableAction.filePath);
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWritter = new FileWriter(file.getName(), true);
+            BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+            bufferWritter.write("#### Url Record ####\n");
+            // Map<Long, Map<String, UrlRecord>> map
+            for (Map.Entry<Long, Map<String, UrlRecord>> entry : map.entrySet()) {
+                String ip = BasicUtils.intToIp(BasicUtils.getHigh4BytesFromLong(entry.getKey()));
+                int dst = BasicUtils.getLow4BytesFromLong(entry.getKey());
+                bufferWritter.write(ip + "." + dst + "\n");
+                for (UrlRecord record : entry.getValue().values()) {
+                    bufferWritter.write("\t" + record.toString() + "\n");
+                }
+            }
+            bufferWritter.write("\n");
+            bufferWritter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
