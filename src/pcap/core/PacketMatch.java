@@ -4,19 +4,9 @@ import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
-import pcap.message.ConnectionPairMap;
+import pcap.table.TcpTable;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
-
-/**
- * ��ݶ˿ں��ж�Э������
- * 
- * todo Ӧ�ò�Э��
- * 
- * date : 2016.1.11
- * 
- * 
- */
 
 public class PacketMatch {
 
@@ -30,26 +20,22 @@ public class PacketMatch {
     }
 
     public static PacketMatch getInstance() {
-
         if (null == pm) {
             synchronized (PacketMatch.class) {
                 if (null == pm)
                     pm = new PacketMatch();
             }
         }
-
         return pm;
     }
 
     public void handlePacket(PcapPacket packet) {
-        // if (packet.hasHeader(ip)) {
-        // handleIp(packet);
-        // }
         if (packet.hasHeader(tcp)) {
             // handleTcp4Test(packet);
             handleTcp(packet);
         }
     }
+
     public void handleIp(PcapPacket packet) {
         ;
     }
@@ -82,15 +68,30 @@ public class PacketMatch {
             return;
         }
 
-        int srcIp = ip.sourceToInt();
-        int dstIp = ip.destinationToInt();
+        int srcIp, dstIp;
         int srcPort = tcp.source();
         int dstPort = tcp.destination();
+
+        long timeStamp = packet.getCaptureHeader().timestampInMillis();
+
+        // 标准化，之后的src/dst都是标准化的。
+        if (dstPort > srcPort) {
+            // 需要颠倒
+            int tmp = dstPort;
+            dstPort = srcPort;
+            srcPort = tmp;
+            srcIp = ip.sourceToInt();
+            dstIp = ip.destinationToInt();
+        } else {
+            srcIp = ip.destinationToInt();
+            dstIp = ip.sourceToInt();
+        }
+
         // System.err.println("\t" + srcPort + " " + +dstPort + " ");
         int index = PropertyUtils.hasPort(srcPort, dstPort);
         if (index < 0)
             return;
-        ConnectionPairMap map = ConnectionPairMap.getInstance();
-        map.searchTcpLink(srcIp, srcPort, dstIp, dstPort, index);
+
+        TcpTable.getInstance().searchTcpRecord(srcIp, srcPort, dstIp, dstPort, index, timeStamp, tcp);
     }
 }

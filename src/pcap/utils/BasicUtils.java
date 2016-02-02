@@ -35,7 +35,6 @@ public class BasicUtils {
         System.out.println(IpAddrToString(addr));
     }
 
-    // ����MAC��ַ
     public static String MacAddrToString(byte[] addr) {
         if (ETHERNET_HEADER_LEN != addr.length)
             return null;
@@ -105,6 +104,13 @@ public class BasicUtils {
         return (int) ipPair;
     }
 
+    public static int getHigh2BytesFromLong(int portPair) {
+        return portPair >>> 16;
+    }
+    public static int getLow2BytesFromLong(int portPair) {
+        return portPair & INT_HALF_ZERO_HALF_ONE;
+    }
+
     // 将2个port 拼成一个 int 按位
     public static int ping2port(int int1, int int2) {
         int x1 = int1 << 16;
@@ -143,5 +149,4 @@ public class BasicUtils {
         }
         return result;
     }
-
 }

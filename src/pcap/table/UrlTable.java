@@ -9,7 +9,7 @@ import pcap.utils.PropertyUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UrlTable {
+public class UrlTable implements TableAction {
 
     /**
      * 用来记录url的表
@@ -236,5 +236,14 @@ public class UrlTable {
             return null;
         re = new UrlLastTime(record.getLastTimeStamp(), record.getLastTime());
         return re;
+    }
+
+    @Override
+    public void clean() {
+        System.out.println("UrlTable clean");
+        for (Map<String, UrlRecord> subMap : map.values()) {
+            subMap.clear();
+        }
+        map.clear();
     }
 }

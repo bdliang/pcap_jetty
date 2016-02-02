@@ -49,7 +49,9 @@ public class UrlRecord {
         ++this.totalCount;
     }
 
-    public void addTimeRecord(long time, long lastTimeStamp, long lastTime) {
+    public void addTimeRecord(long time, long lastTimeStamp) {
+        if (time <= 0)
+            return;
         this.totalTime += time;
         ++this.totalCount;
 

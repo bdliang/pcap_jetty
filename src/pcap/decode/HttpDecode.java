@@ -1,5 +1,8 @@
 package pcap.decode;
 
+import pcap.record.TcpRecord;
+import pcap.record.UrlRecord;
+import pcap.table.UrlTable;
 import pcap.utils.DecodeUtils;
 
 public class HttpDecode {
@@ -97,7 +100,7 @@ public class HttpDecode {
         return buf.toString();
     }
 
-    public static void decodeFirstLine(String firstLine) {
+    public static void decodeFirstLine(String firstLine, TcpRecord record, long timeStamp) {
         String[] c = firstLine.split(" ");
         if (c.length < 3) {
             return; // Can't parse it
@@ -107,18 +110,40 @@ public class HttpDecode {
             // response
             // c[0] --- version
             // c[1] --- code
-            // HttpRecord.addCount(Items.parseContentType(c[1]));
             // c[2] --- codeMsg
+            record.setStatus(TcpRecord.HTTP_RESPONSE);
+            UrlRecord urlRecord = UrlTable.getInstance().getUrlRecord(record.typeIp(), record.typePort(), record.getInfo());
+            urlRecord.addItem(c[1]);
+            long start = record.getTimeStamp();
+            if (-1 == start)
+                return;
+            urlRecord.addTimeRecord(timeStamp - start, start);
         } else {
             // request
             // c[0] --- method
-            // HttpRecord.addCount(Items.parseContentType(c[0]));
             // c[1] --- url
             // c[2] --- version
+            record.setStatus(TcpRecord.HTTP_REQUEST);
+            record.setTimeStamp(timeStamp);
+            String url = urlDivide(c[1]);
+            record.setInfo(url);
+            UrlRecord urlRecord = UrlTable.getInstance().getUrlRecord(record.typeIp(), record.typePort(), url);
+            urlRecord.addItem(c[0]);
         }
     }
 
-    public static void decode(byte[] payload) {
+    public static String urlDivide(String rawUrl) {
+        if (null == rawUrl)
+            return null;
+        int x = rawUrl.indexOf('?');
+        return rawUrl.substring(0, x);
+    }
+
+    public static void decode(byte[] payload, TcpRecord record, long timeStamp) {
+        if (null == payload || null == record)
+            return;
+
+        /* 判断是否是含有http包头的包 */
         String httpHeader = getHttpHeader(payload);
         if (httpHeader == null)
             return;
@@ -165,7 +190,7 @@ public class HttpDecode {
             String c[] = line.split(":", 2);
             if (c.length == 1) {
                 if (c[0].length() > 0) {
-                    decodeFirstLine(c[0]);
+                    decodeFirstLine(c[0], record, timeStamp);
                     break;// 目前只需要第一行的参数，所以在这里就解析退出了。
                 }
                 continue;
@@ -179,7 +204,4 @@ public class HttpDecode {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("HttpDecode class");
-    }
 }

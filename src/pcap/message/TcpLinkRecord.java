@@ -1,5 +1,6 @@
 package pcap.message;
 
+@Deprecated
 public class TcpLinkRecord {
 
     private int countSrcDst;
