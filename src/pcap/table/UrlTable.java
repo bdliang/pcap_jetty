@@ -25,10 +25,10 @@ public class UrlTable implements TableAction {
      * */
     private static UrlTable single;
 
-    private Map<Long, Map<String, UrlRecord>> map;
+    private Map<Long, Map<String, UrlRecord>> urlMap;
 
     private UrlTable() {
-        map = new HashMap<Long, Map<String, UrlRecord>>();
+        urlMap = new HashMap<Long, Map<String, UrlRecord>>();
     }
 
     /* 单例 */
@@ -45,7 +45,7 @@ public class UrlTable implements TableAction {
 
     public int getNum() {
         int cnt = 0;
-        for (Map<String, UrlRecord> subMap : map.values()) {
+        for (Map<String, UrlRecord> subMap : urlMap.values()) {
             cnt += subMap.size();
         }
         return cnt;
@@ -62,12 +62,12 @@ public class UrlTable implements TableAction {
             return null;
 
         long key = BasicUtils.ping2Int(ip, port);
-        Map<String, UrlRecord> subMap = map.get(key);
+        Map<String, UrlRecord> subMap = urlMap.get(key);
         if (null == subMap) {
             subMap = new HashMap<String, UrlRecord>();
             record = new UrlRecord(ip, port, url);
             subMap.put(url, record);
-            map.put(key, subMap);
+            urlMap.put(key, subMap);
         } else {
             record = subMap.get(url);
             if (null == record) {
@@ -86,7 +86,7 @@ public class UrlTable implements TableAction {
         if (null == item || Items.OTHER == item)
             return 0;
         int cnt = 0;
-        for (Map<String, UrlRecord> subMap : map.values()) {
+        for (Map<String, UrlRecord> subMap : urlMap.values()) {
             for (UrlRecord record : subMap.values()) {
                 cnt += record.getItemCount(item);
             }
@@ -100,7 +100,7 @@ public class UrlTable implements TableAction {
     public double getAvgTime() {
         long time = 0;
         long cnt = 0;
-        for (Map<String, UrlRecord> subMap : map.values()) {
+        for (Map<String, UrlRecord> subMap : urlMap.values()) {
             for (UrlRecord record : subMap.values()) {
                 time += record.getTotalTime();
                 cnt += record.getTotalCount();
@@ -116,7 +116,7 @@ public class UrlTable implements TableAction {
         if (BasicUtils.isStringBlank(url) || null == item || Items.OTHER == item)
             return 0;
         int cnt = 0;
-        for (Map<String, UrlRecord> subMap : map.values()) {
+        for (Map<String, UrlRecord> subMap : urlMap.values()) {
             UrlRecord record = subMap.get(url);
             if (null == record)
                 continue;
@@ -128,7 +128,7 @@ public class UrlTable implements TableAction {
     public double getUrlAvgTime(String url) {
         long time = 0;
         long cnt = 0;
-        for (Map<String, UrlRecord> subMap : map.values()) {
+        for (Map<String, UrlRecord> subMap : urlMap.values()) {
             UrlRecord record = subMap.get(url);
             if (null == record)
                 continue;
@@ -145,10 +145,10 @@ public class UrlTable implements TableAction {
         if (null == item || Items.OTHER == item)
             return 0;
         int cnt = 0;
-        for (Long ipPort : map.keySet()) {
+        for (Long ipPort : urlMap.keySet()) {
             if (ip != BasicUtils.getHigh4BytesFromLong(ipPort))
                 continue;
-            Map<String, UrlRecord> subMap = map.get(ipPort);
+            Map<String, UrlRecord> subMap = urlMap.get(ipPort);
             for (UrlRecord record : subMap.values()) {
                 cnt += record.getItemCount(item);
             }
@@ -159,10 +159,10 @@ public class UrlTable implements TableAction {
     public double getIpAvgTime(int ip) {
         long time = 0;
         long cnt = 0;
-        for (Long ipPort : map.keySet()) {
+        for (Long ipPort : urlMap.keySet()) {
             if (ip != BasicUtils.getHigh4BytesFromLong(ipPort))
                 continue;
-            Map<String, UrlRecord> subMap = map.get(ipPort);
+            Map<String, UrlRecord> subMap = urlMap.get(ipPort);
             for (UrlRecord record : subMap.values()) {
                 time += record.getTotalTime();
                 cnt += record.getTotalCount();
@@ -179,7 +179,7 @@ public class UrlTable implements TableAction {
             return 0;
         int cnt = 0;
         long key = BasicUtils.ping2Int(ip, port);
-        Map<String, UrlRecord> subMap = map.get(key);
+        Map<String, UrlRecord> subMap = urlMap.get(key);
         if (null == subMap)
             return 0;
         for (UrlRecord record : subMap.values()) {
@@ -194,7 +194,7 @@ public class UrlTable implements TableAction {
         long time = 0;
         long cnt = 0;
         long key = BasicUtils.ping2Int(ip, port);
-        Map<String, UrlRecord> subMap = map.get(key);
+        Map<String, UrlRecord> subMap = urlMap.get(key);
         if (null == subMap)
             return 0.0;
         for (UrlRecord record : subMap.values()) {
@@ -214,7 +214,7 @@ public class UrlTable implements TableAction {
         long key = BasicUtils.ping2Int(ip, port);
         Map<String, UrlRecord> subMap = null;
         UrlRecord record = null;
-        if (null == (subMap = map.get(key)) || null == (record = subMap.get(url)))
+        if (null == (subMap = urlMap.get(key)) || null == (record = subMap.get(url)))
             return 0;
         cnt = record.getItemCount(item);
         return cnt;
@@ -228,7 +228,7 @@ public class UrlTable implements TableAction {
         long key = BasicUtils.ping2Int(ip, port);
         Map<String, UrlRecord> subMap = null;
         UrlRecord record = null;
-        if (null == (subMap = map.get(key)) || null == (record = subMap.get(url)))
+        if (null == (subMap = urlMap.get(key)) || null == (record = subMap.get(url)))
             return 0.0;
         time += record.getTotalTime();
         cnt += record.getTotalCount();
@@ -245,7 +245,7 @@ public class UrlTable implements TableAction {
         long key = BasicUtils.ping2Int(ip, port);
         Map<String, UrlRecord> subMap = null;
         UrlRecord record = null;
-        if (null == (subMap = map.get(key)) || null == (record = subMap.get(url)))
+        if (null == (subMap = urlMap.get(key)) || null == (record = subMap.get(url)))
             return null;
         re = new UrlLastTime(record.getLastTimeStamp(), record.getLastTime());
         return re;
@@ -254,10 +254,10 @@ public class UrlTable implements TableAction {
     @Override
     public void clean() {
         System.out.println("UrlTable clean");
-        for (Map<String, UrlRecord> subMap : map.values()) {
+        for (Map<String, UrlRecord> subMap : urlMap.values()) {
             subMap.clear();
         }
-        map.clear();
+        urlMap.clear();
     }
 
     @Override
@@ -271,7 +271,7 @@ public class UrlTable implements TableAction {
             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
             bufferWritter.write("#### Url Record ####\n");
             // Map<Long, Map<String, UrlRecord>> map
-            for (Map.Entry<Long, Map<String, UrlRecord>> entry : map.entrySet()) {
+            for (Map.Entry<Long, Map<String, UrlRecord>> entry : urlMap.entrySet()) {
                 String ip = BasicUtils.intToIp(BasicUtils.getHigh4BytesFromLong(entry.getKey()));
                 int dst = BasicUtils.getLow4BytesFromLong(entry.getKey());
                 bufferWritter.write(ip + "." + dst + "\n");

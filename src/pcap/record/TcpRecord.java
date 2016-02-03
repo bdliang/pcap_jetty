@@ -98,7 +98,7 @@ public class TcpRecord {
     /**
      * 识别一端的类型
      * */
-    public void decodeType(int index) {
+    private void decodeType(int index) {
         if (index < 0) {
             this.typeIndex = TYPE_NULL;
             return;
