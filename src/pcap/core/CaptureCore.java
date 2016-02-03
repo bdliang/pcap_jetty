@@ -82,8 +82,8 @@ public class CaptureCore implements Runnable {
 
         }
 
-        int snaplen = Pcap.DEFAULT_SNAPLEN;// ����65536
-        int flags = Pcap.MODE_PROMISCUOUS;// ����ģʽ
+        int snaplen = Pcap.DEFAULT_SNAPLEN;
+        int flags = Pcap.MODE_PROMISCUOUS;
         int timeout = BasicUtils.DEFAULT_TIMEOUT;
         // StringBuilder errsb = null;
         Pcap pcap = Pcap.openLive(deviceName, snaplen, flags, timeout, errbuf);
