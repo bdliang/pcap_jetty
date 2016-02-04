@@ -13,6 +13,9 @@ public class BasicUtils {
     public static final int NUM_EACH_CAPTURE = 10;
     public static final int DEFAULT_TIMEOUT = 500; // in millis
 
+    /**
+     * 将byte型按位转换成相应无符号整数值
+     * */
     private static int u(byte b) {
         return (b >= 0) ? b : b + 256;
     }

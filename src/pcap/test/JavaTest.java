@@ -6,6 +6,7 @@ import pcap.decode.HttpDecode;
 import pcap.record.TcpRecord;
 import pcap.table.TableAction;
 import pcap.utils.BasicUtils;
+import pcap.utils.DecodeUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,7 +17,7 @@ import java.util.Date;
 public class JavaTest {
 
     public static void main(String[] args) {
-        test5();
+        test7();
     }
 
     public static void test1() {
@@ -68,7 +69,6 @@ public class JavaTest {
             bufferWritter.write("hello\n");
             bufferWritter.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -79,4 +79,44 @@ public class JavaTest {
         System.out.println(url);
     }
 
+    public static final int BYTETOVALUE = 0x00ff;
+    public static void test6() {
+        // 将byte型(当做无符号)转换成int型，
+        // byte x = (byte) 0xff;
+        // int tmp = x;
+        // System.out.println("tmp = " + tmp);
+        //
+        // tmp = x & BYTETOVALUE;
+        // System.out.println("tmp = " + tmp);
+
+        // 将4个byte拼成一个int
+        byte[] b = new byte[4];
+
+        b[0] = 0x01;
+        b[1] = 0x01;
+        b[2] = 0x01;
+        b[3] = 0x01;
+        int re = DecodeUtils.pin4bytes(b[0], b[1], b[2], b[3]);
+        System.out.println(Integer.toHexString(re));
+        int re1 = 0;
+        for (int i = 0; i < b.length; ++i) {
+            re1 *= 256;
+            re1 += b[i] & BYTETOVALUE;
+        }
+        System.out.println(Integer.toHexString(re1));
+        if (re == re1)
+            System.out.println("yes");
+        else
+            System.out.println("no");
+    }
+
+    /**
+     * byte[] 转化为 String
+     * */
+    public static void test7() {
+
+        String str = "352e312e392d716c7068612d646562756700";
+        System.out.println(str.length());
+
+    }
 }
