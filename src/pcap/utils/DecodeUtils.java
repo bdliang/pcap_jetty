@@ -76,12 +76,15 @@ public class DecodeUtils {
     /**
      * 尚未不完整
      * 
-     * 通过characterSetCode 返回响应的字符集对象，如果出错则返回"UTF-8"对应的字符集
+     * 通过characterSetCode 返回响应的字符集对象，如果出错则返回"UTF-8"对应的字符集.
+     * 
+     * 如果考虑mysql, 其实应该是 "ISO-8859-1"对应的字符集(latin1), 不过无所谓，反正目前相当于测试
      * */
     public static Charset charSet(int characterSetCode) {
 
         // 省略将对应characterSetCode转换为对应字符串
         // 需要补充
+
         String enc = "UTF-8";
         Charset charset = null;
         if (enc == null)
