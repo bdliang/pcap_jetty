@@ -95,7 +95,7 @@ public class MysqlServerRecord {
     /** getter & setter */
 
     public enum MysqlItems {
-        SELECT("SELECT"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), COMMIT("COMMIT"), ROLLBACK("ROLLBACK"), OTHER, ;
+        SELECT("SELECT"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), COMMIT("COMMIT"), ROLLBACK("ROLLBACK"), ERROR("ERROR"), OTHER, ;
 
         private String desc;
 

@@ -3,6 +3,8 @@ package org.jetty.demo;
 import pcap.utils.BasicUtils;
 import pcap.utils.DecodeUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -125,5 +127,22 @@ public class BasicTest {
             String charsetName = it.next();
             System.out.println(charsetName);
         }
+    }
+
+    public static void test8() {
+        String xml = "abc";
+        StringBuffer sb = new StringBuffer();
+        sb.append(xml);
+        String xmString = "";
+        String xmlUTF8 = "";
+        try {
+            xmString = new String(sb.toString().getBytes("UTF-8"));
+            xmlUTF8 = URLEncoder.encode(xmString, "UTF-8");
+            System.out.println("utf-8 编码：" + xmlUTF8);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Charset cs = Charset.forName("UTF-8");
+        System.out.println(cs.toString());
     }
 }

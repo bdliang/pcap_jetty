@@ -1,5 +1,11 @@
 package pcap.utils;
 
+import pcap.decode.MysqlLengthEncodedInteger;
+
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+
 public class DecodeUtils {
 
     public static int pin4bytes(byte b1, byte b2, byte b3, byte b4) {
@@ -60,10 +66,54 @@ public class DecodeUtils {
     public static long litterEndianToLong(byte[] bys, int off, int len) {
         if (len > 8)
             len = 8;
-        long uint32 = 0;
+        long result = 0;
         for (int i = len - 1; i >= 0; i--) {
-            uint32 |= (0xff & bys[off + i]) << (8 * i);
+            result |= (0xff & bys[off + i]) << (8 * i);
         }
-        return uint32;
+        return result;
+    }
+
+    /**
+     * 尚未不完整
+     * 
+     * 通过characterSetCode 返回响应的字符集对象，如果出错则返回"UTF-8"对应的字符集
+     * */
+    public static Charset charSet(int characterSetCode) {
+
+        // 省略将对应characterSetCode转换为对应字符串
+        // 需要补充
+        String enc = "UTF-8";
+        Charset charset = null;
+        if (enc == null)
+            return Charset.forName("UTF-8");
+
+        try {
+            charset = Charset.forName(enc);
+        } catch (IllegalCharsetNameException e) {
+            return Charset.forName("UTF-8");
+        } catch (UnsupportedCharsetException e) {
+            return Charset.forName("UTF-8");
+        }
+        return charset;
+    }
+
+    /**
+     * mysql length-coeded integer的解码
+     * */
+    public static MysqlLengthEncodedInteger mysqlLengthCodedIntDecode(byte[] data, int offset) {
+        if (null == data || data.length < offset + 1)
+            return new MysqlLengthEncodedInteger(0L, 0, true);
+        int first = BasicUtils.u(data[offset]);
+        switch (first) {
+            case 0xfc :
+                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 2), 2, false);
+            case 0xfd :
+                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 3), 3, false);
+            case 0xfe :
+                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 8), 8, false);
+        }
+        if (first >= 0xfb)
+            return new MysqlLengthEncodedInteger(0L, 0, true);;
+        return new MysqlLengthEncodedInteger(first, 1, false);
     }
 }

@@ -113,6 +113,8 @@ public class HttpDecode {
             // c[2] --- codeMsg
             record.setStatus(TcpStatus.HTTP_RESPONSE);
             UrlRecord urlRecord = UrlTable.getInstance().getUrlRecord(record.typeIp(), record.typePort(), record.getInfo());
+            if (null == urlRecord)
+                return;
             urlRecord.addItem(c[1]);
             long start = record.getTimeStamp();
             if (-1 == start)

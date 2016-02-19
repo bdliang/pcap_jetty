@@ -48,7 +48,7 @@ public class MysqlServerTable implements TableAction {
      * 
      * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
      * */
-    public MysqlServerRecord getUrlRecord(int ip, int port) {
+    public MysqlServerRecord getMysqlServerRecord(int ip, int port) {
         MysqlServerRecord record = null;
         if (!PropertyUtils.isPortValid(port))
             return null;
