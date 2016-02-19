@@ -30,4 +30,40 @@ public class DecodeUtils {
         return re;
     }
 
+    /**
+     * 大端顺序存储的内容转换为相应的数值，最多8bytes。
+     * 
+     * @param bys
+     * @param off
+     * @param len
+     * @return 返回转换后的值，如果len > 8 , 则返回前8位的值。
+     * @throws Exception
+     */
+    public static long bigEndianToLong(byte[] bys, int off, int len) {
+        if (len > 8)
+            len = 8;
+        long uint32 = 0;
+        for (int i = 0, end = len - 1, c = end; i <= end; i++, c--) {
+            uint32 |= (0xff & bys[off + i]) << (8 * c);
+        }
+        return uint32;
+    }
+    /**
+     * 小端顺序存储的内容转换为相应的数值，最多8bytes。
+     * 
+     * @param bys
+     * @param off
+     * @param len
+     * @return 返回转换后的值，如果len > 8 , 则返回前8位的值。
+     * @throws Exception
+     */
+    public static long litterEndianToLong(byte[] bys, int off, int len) {
+        if (len > 8)
+            len = 8;
+        long uint32 = 0;
+        for (int i = len - 1; i >= 0; i--) {
+            uint32 |= (0xff & bys[off + i]) << (8 * i);
+        }
+        return uint32;
+    }
 }

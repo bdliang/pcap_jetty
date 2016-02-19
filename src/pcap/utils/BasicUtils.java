@@ -17,7 +17,9 @@ public class BasicUtils {
      * 将byte型按位转换成相应无符号整数值
      * */
     private static int u(byte b) {
-        return (b >= 0) ? b : b + 256;
+        // return (b >= 0) ? b : b + 256;
+
+        return 0xff & b;
     }
 
     public static String IpAddrToString(byte[] addr) {

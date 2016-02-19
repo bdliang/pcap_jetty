@@ -20,7 +20,7 @@ public class UrlRecord {
 
     private long totalTime;
     private long totalCount;
-    private Map<Items, Integer> counters;
+    private Map<HttpItems, Integer> counters;
 
     private long lastTimeStamp;
     private long lastTime;
@@ -48,7 +48,7 @@ public class UrlRecord {
 
         totalTime = 0L;
         totalCount = 0L;
-        counters = new HashMap<UrlRecord.Items, Integer>();
+        counters = new HashMap<UrlRecord.HttpItems, Integer>();
         lastTimeStamp = 0L;
         lastTime = 0L;
     }
@@ -64,14 +64,14 @@ public class UrlRecord {
         this.totalTime += time;
         ++this.totalCount;
 
-        if (this.lastTimeStamp > 0 && this.lastTimeStamp < lastTimeStamp) {
+        if (this.lastTimeStamp >= 0 && this.lastTimeStamp < lastTimeStamp) {
             this.lastTimeStamp = lastTimeStamp;
             this.lastTime = time;
         }
     }
 
-    public int getItemCount(Items item) {
-        if (null == item || Items.OTHER == item)
+    public int getItemCount(HttpItems item) {
+        if (null == item || HttpItems.OTHER == item)
             return 0;
         Integer cnt = counters.get(item);
         if (null == cnt) {
@@ -81,11 +81,11 @@ public class UrlRecord {
     }
 
     public int getItemCount(String str) {
-        return getItemCount(Items.parseContentType(str));
+        return getItemCount(HttpItems.parseContentType(str));
     }
 
-    public void addItem(Items item) {
-        if (null == item || Items.OTHER == item)
+    public void addItem(HttpItems item) {
+        if (null == item || HttpItems.OTHER == item)
             return;
         Integer tmp = counters.get(item);
         if (null == tmp) {
@@ -96,7 +96,7 @@ public class UrlRecord {
     }
 
     public void addItem(String str) {
-        addItem(Items.parseContentType(str));
+        addItem(HttpItems.parseContentType(str));
     }
 
     public double avgTime() {
@@ -118,27 +118,31 @@ public class UrlRecord {
         return port;
     }
 
-    public enum Items {
+    public Map<HttpItems, Integer> getCounters() {
+        return counters;
+    }
+
+    public enum HttpItems {
         GET("GET"), POST("POST"), HEAD("HEAD"), PUT("PUT"), DELETE("DELETE"), OPTIONS("OPTIONS"), TRACE("TRACE"), CONNECT("CONNECT"), XX2(
-                "2XX"), _302("302"), _304("304"), _403("403"), _404("404"), _500("500"), _503("503"), OTHER, ;
+                "200"), _302("302"), _304("304"), _403("403"), _404("404"), _500("500"), _501("501"), _503("503"), OTHER, ;
 
         private String desc;
 
-        private Items(String desc) {
+        private HttpItems(String desc) {
             this.desc = desc;
         }
-        private Items() {
+        private HttpItems() {
             desc = "";
         }
         public String getDesc() {
             return desc;
         }
 
-        public static Items parseContentType(String type) {
-            if (type == null) {
+        public static HttpItems parseContentType(String type) {
+            if (null == type) {
                 return OTHER;
             }
-            for (Items t : values()) {
+            for (HttpItems t : values()) {
                 if (t.name().equalsIgnoreCase(type)) {
                     return t;
                 }

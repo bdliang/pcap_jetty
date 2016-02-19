@@ -1,15 +1,20 @@
 package org.jetty.demo;
 
 import pcap.utils.BasicUtils;
+import pcap.utils.DecodeUtils;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class BasicTest {
 
     public static void main(String[] args) {
-        test3();
+        test7();
     }
+
     public static void test1() {
         System.out.println(Long.toHexString(BasicUtils.LONG_HALF_ONE_HALF_ZERO));
         System.out.println(Long.toHexString(BasicUtils.LONG_HALF_ZERO_HALF_ONE));
@@ -48,5 +53,77 @@ public class BasicTest {
             System.out.println(s + " = " + tmp);
         }
 
+    }
+
+    public static void test_16To10() {
+        long x = 0;
+        x = 0xfa;
+        for (x = 0xfa; x <= 0xff; ++x)
+            System.out.println(Long.toHexString(x) + " " + x);
+
+    }
+
+    /**
+     * 小段顺序测试
+     */
+    public static void test4() {
+
+        byte[] bys = {-1, 00, 00, 00};
+        for (int i = 0; i < bys.length; ++i) {
+            System.out.println((int) bys[i] + "  " + (0xff & bys[i]));
+        }
+        long re = 0;
+        try {
+            re = DecodeUtils.litterEndianToLong(bys, 0, 9);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println(re);
+    }
+
+    private static int u(byte b) {
+        return (b >= 0) ? b : b + 256;
+        // return 0xff & b;
+    }
+
+    private static int u1(byte b) {
+        // return (b >= 0) ? b : b + 256;
+        return 0xff & b;
+    }
+
+    /**
+     * 测试u1()正确性
+     * */
+    public static void test5() {
+        int cnt = 0;
+        byte i = 0;
+        for (i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; ++i) {
+            if (u(i) != u1(i))
+                ++cnt;
+        }
+        i = Byte.MAX_VALUE;
+        if (u(i) != u1(i))
+            ++cnt;
+        System.out.println(cnt);
+    }
+
+    public static void test6() {
+        int x = 0;
+        x = 2048;
+
+        System.out.println(Integer.toHexString(~x));
+    }
+
+    public static void test7() {
+        Set<String> charsetNames = Charset.availableCharsets().keySet();
+        System.out.println("---The Number of jdk charset is " + charsetNames.size() + "---");
+
+        Iterator<String> it = charsetNames.iterator();
+
+        while (it.hasNext()) {
+            String charsetName = it.next();
+            System.out.println(charsetName);
+        }
     }
 }

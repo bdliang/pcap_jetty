@@ -117,15 +117,6 @@ public class TcpTable implements TableAction {
         }
     }
 
-    @Override
-    public void clean() {
-        System.out.println("TcpTable clean");
-        for (Map<Integer, TcpRecord> map : ipMapPort.values()) {
-            map.clear();
-        }
-        ipMapPort.clear();
-    }
-
     public void decodePacket(Tcp tcp, TcpRecord record, long timeStamp) {
         if (null == tcp || null == record)
             return;
@@ -140,6 +131,15 @@ public class TcpTable implements TableAction {
         } else if (type.equals("mongodb")) {
         } else if (type.equals("ldap")) {
         }
+    }
+
+    @Override
+    public void clean() {
+        System.out.println("TcpTable clean");
+        for (Map<Integer, TcpRecord> map : ipMapPort.values()) {
+            map.clear();
+        }
+        ipMapPort.clear();
     }
 
     @Override

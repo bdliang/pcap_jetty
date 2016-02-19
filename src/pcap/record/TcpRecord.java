@@ -1,6 +1,7 @@
 package pcap.record;
 
 import net.sf.json.JsonConfig;
+import pcap.constant.TcpStatus;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
@@ -27,14 +28,9 @@ public class TcpRecord {
         config.setExcludes(new String[]{"info", "type", "timeStamp"});
     }
 
-    /* 用于标明该tcp链接的状态 */
-    public static final int NULL_STATUS = 0;
-    public static final int HTTP_REQUEST = 1;
-    public static final int HTTP_RESPONSE = 2;
-
-    public static final byte TYPE_NULL = 0;
-    public static final byte TYPE_SRC = 1;
-    public static final byte TYPE_DST = 2;
+    private static final byte TYPE_NULL = 0;
+    private static final byte TYPE_SRC = 1;
+    private static final byte TYPE_DST = 2;
 
     private int ipSrc;
     private int ipDst;
@@ -49,37 +45,9 @@ public class TcpRecord {
     private long timeStamp;
     private String info;
 
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public int getIpSrc() {
-        return ipSrc;
-    }
-
-    public int getIpDst() {
-        return ipDst;
-    }
-
-    public String getType() {
-        if (TYPE_SRC == typeIndex)
-            return typeSrc;
-        else if (TYPE_DST == typeIndex)
-            return typeDst;
-        return "";
-    }
-
-    public int getPortSrc() {
-        return portSrc;
-    }
-
-    public int getPortDst() {
-        return portDst;
-    }
+    private boolean isCompress;
+    private boolean isSSL;
+    private int characterSetCode; // 用于记录mysql的字符集
 
     public TcpRecord(int ipSrc, int portSrc, int ipDst, int portDst, int index) {
         this.ipSrc = ipSrc;
@@ -90,9 +58,13 @@ public class TcpRecord {
         this.typeSrc = null;
         this.typeDst = null;
         decodeType(index);
-        this.status = NULL_STATUS;
+        this.status = TcpStatus.NULL_STATUS;
         this.timeStamp = -1;
         this.info = null;
+
+        isCompress = false;
+        isSSL = false;
+        characterSetCode = -1;
     }
 
     /**
@@ -119,14 +91,14 @@ public class TcpRecord {
             typeDst = PropertyUtils.AppLayerName(index);
             typeIndex = TYPE_DST;
         }
-
-    }
-    public void setStatus(int status) {
-        this.status = status;
     }
 
-    public int getStatus() {
-        return status;
+    public String getType() {
+        if (TYPE_SRC == typeIndex)
+            return typeSrc;
+        else if (TYPE_DST == typeIndex)
+            return typeDst;
+        return "";
     }
 
     public int typeIp() {
@@ -147,12 +119,68 @@ public class TcpRecord {
         return 0;
     }
 
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public int getIpSrc() {
+        return ipSrc;
+    }
+
+    public int getIpDst() {
+        return ipDst;
+    }
+
+    public int getPortSrc() {
+        return portSrc;
+    }
+
+    public int getPortDst() {
+        return portDst;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
     public long getTimeStamp() {
         return timeStamp;
     }
 
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public boolean isCompress() {
+        return isCompress;
+    }
+
+    public void setCompress(boolean isCompress) {
+        this.isCompress = isCompress;
+    }
+
+    public boolean isSSL() {
+        return isSSL;
+    }
+
+    public void setSSL(boolean isSSL) {
+        this.isSSL = isSSL;
+    }
+
+    public int getCharacterSetCode() {
+        return characterSetCode;
+    }
+
+    public void setCharacterSetCode(int characterSetCode) {
+        this.characterSetCode = characterSetCode;
     }
 
     @Override

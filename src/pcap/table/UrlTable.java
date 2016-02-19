@@ -1,7 +1,7 @@
 package pcap.table;
 
 import pcap.record.UrlRecord;
-import pcap.record.UrlRecord.Items;
+import pcap.record.UrlRecord.HttpItems;
 import pcap.result.UrlLastTime;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
@@ -54,7 +54,7 @@ public class UrlTable implements TableAction {
     /**
      * 在UrlTable中， 查找 ip, port, url对应的记录
      * 
-     * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果又不符合条件的，则返回null
+     * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
      * */
     public UrlRecord getUrlRecord(int ip, int port, String url) {
         UrlRecord record = null;
@@ -82,8 +82,8 @@ public class UrlTable implements TableAction {
     /**
      * 获得所有item属性的个数
      * */
-    public int getCount(Items item) {
-        if (null == item || Items.OTHER == item)
+    public int getCount(HttpItems item) {
+        if (null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
         for (Map<String, UrlRecord> subMap : urlMap.values()) {
@@ -112,8 +112,8 @@ public class UrlTable implements TableAction {
     }
 
     /* 根据url查找 */
-    public int getUrlCount(String url, Items item) {
-        if (BasicUtils.isStringBlank(url) || null == item || Items.OTHER == item)
+    public int getCount(String url, HttpItems item) {
+        if (BasicUtils.isStringBlank(url) || null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
         for (Map<String, UrlRecord> subMap : urlMap.values()) {
@@ -125,7 +125,7 @@ public class UrlTable implements TableAction {
         return cnt;
     }
 
-    public double getUrlAvgTime(String url) {
+    public double getAvgTimeByUrl(String url) {
         long time = 0;
         long cnt = 0;
         for (Map<String, UrlRecord> subMap : urlMap.values()) {
@@ -141,8 +141,8 @@ public class UrlTable implements TableAction {
     }
 
     /* 根据ip查找 */
-    public int getIpCount(int ip, Items item) {
-        if (null == item || Items.OTHER == item)
+    public int getCountByIp(int ip, HttpItems item) {
+        if (null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
         for (Long ipPort : urlMap.keySet()) {
@@ -156,7 +156,7 @@ public class UrlTable implements TableAction {
         return cnt;
     }
 
-    public double getIpAvgTime(int ip) {
+    public double getAvgTimeByIp(int ip) {
         long time = 0;
         long cnt = 0;
         for (Long ipPort : urlMap.keySet()) {
@@ -174,8 +174,8 @@ public class UrlTable implements TableAction {
     }
 
     /* 根据ip/port查找 */
-    public int getIpPortCount(int ip, int port, Items item) {
-        if (PropertyUtils.isPortValid(port) || null == item || Items.OTHER == item)
+    public int getCountByIpPort(int ip, int port, HttpItems item) {
+        if (PropertyUtils.isPortValid(port) || null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
         long key = BasicUtils.ping2Int(ip, port);
@@ -188,7 +188,7 @@ public class UrlTable implements TableAction {
         return cnt;
     }
 
-    public double getIpPortAvgTime(int ip, int port) {
+    public double getAvgTimeByIpPort(int ip, int port) {
         if (PropertyUtils.isPortValid(port))
             return 0.0;
         long time = 0;
@@ -207,7 +207,7 @@ public class UrlTable implements TableAction {
     }
 
     /* 根据ip/port/url查找 */
-    public int getIpPortCount(int ip, int port, String url, Items item) {
+    public int getCountByIpPortUrl(int ip, int port, String url, HttpItems item) {
         if (PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return 0;
         int cnt = 0;
@@ -220,7 +220,7 @@ public class UrlTable implements TableAction {
         return cnt;
     }
 
-    public double getIpPortAvgTime(int ip, int port, String url) {
+    public double getAvgTimeByIpPortUrl(int ip, int port, String url) {
         if (PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return 0.0;
         long time = 0;
@@ -237,7 +237,7 @@ public class UrlTable implements TableAction {
         return 0.0;
     }
 
-    public UrlLastTime getLastTime(int ip, int port, String url) {
+    public UrlLastTime getLastTimeByIpPortUrl(int ip, int port, String url) {
         UrlLastTime re = null;
         if (PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return null;

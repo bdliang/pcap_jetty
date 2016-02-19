@@ -2,6 +2,7 @@ package pcap.decode;
 
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+import pcap.constant.TcpStatus;
 import pcap.record.TcpRecord;
 import pcap.record.UrlRecord;
 import pcap.table.UrlTable;
@@ -110,7 +111,7 @@ public class HttpDecode {
             // c[0] --- version
             // c[1] --- code
             // c[2] --- codeMsg
-            record.setStatus(TcpRecord.HTTP_RESPONSE);
+            record.setStatus(TcpStatus.HTTP_RESPONSE);
             UrlRecord urlRecord = UrlTable.getInstance().getUrlRecord(record.typeIp(), record.typePort(), record.getInfo());
             urlRecord.addItem(c[1]);
             long start = record.getTimeStamp();
@@ -128,7 +129,7 @@ public class HttpDecode {
             // c[0] --- method
             // c[1] --- url
             // c[2] --- version
-            record.setStatus(TcpRecord.HTTP_REQUEST);
+            record.setStatus(TcpStatus.HTTP_REQUEST);
             record.setTimeStamp(timeStamp);
             String url = urlDivide(c[1]);
             record.setInfo(url);
