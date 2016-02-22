@@ -45,8 +45,9 @@ public class TcpRecord {
     private long timeStamp;
     private String info;
 
-    private boolean isCompress;
-    private boolean isSSL;
+    // / mysql 使用
+    private boolean Compress;
+    private boolean SSL;
     private int characterSetCode; // 用于记录mysql的字符集
 
     public TcpRecord(int ipSrc, int portSrc, int ipDst, int portDst, int index) {
@@ -62,8 +63,8 @@ public class TcpRecord {
         this.timeStamp = -1;
         this.info = null;
 
-        isCompress = false;
-        isSSL = false;
+        Compress = false;
+        SSL = false;
         characterSetCode = -1;
     }
 
@@ -160,19 +161,19 @@ public class TcpRecord {
     }
 
     public boolean isCompress() {
-        return isCompress;
+        return Compress;
     }
 
-    public void setCompress(boolean isCompress) {
-        this.isCompress = isCompress;
+    public void setCompress(boolean compress) {
+        Compress = compress;
     }
 
     public boolean isSSL() {
-        return isSSL;
+        return SSL;
     }
 
-    public void setSSL(boolean isSSL) {
-        this.isSSL = isSSL;
+    public void setSSL(boolean sSL) {
+        SSL = sSL;
     }
 
     public int getCharacterSetCode() {
