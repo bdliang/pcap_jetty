@@ -33,7 +33,7 @@ public class HttpDecode {
      * 每个方法前3个字节连起来都不相同，采用拼接成int型来判断。
      * */
 
-    public static final String[] HTTP_METHOD = {"HTTP", "GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "CONNECT"};
+    private static final String[] HTTP_METHOD = {"HTTP", "GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "TRACE", "CONNECT"};
 
     static {
         generateMETHODCODE();
@@ -42,9 +42,9 @@ public class HttpDecode {
     /**
      * 用来判定http包是否是response
      * */
-    public static int[] HTTP_METHOD_CODE;
+    private static int[] HTTP_METHOD_CODE;
 
-    public static void generateMETHODCODE() {
+    private static void generateMETHODCODE() {
         HTTP_METHOD_CODE = new int[HTTP_METHOD.length];
         for (int i = 0; i < HTTP_METHOD.length; ++i) {
             HTTP_METHOD_CODE[i] = DecodeUtils.pinIntfromString(HTTP_METHOD[i], 3);
@@ -57,7 +57,7 @@ public class HttpDecode {
 
     private final static int NOT_HTTP = -1;
 
-    public static int isBytesHTTPHeader(byte[] raw) {
+    private static int isBytesHTTPHeader(byte[] raw) {
         if (null == raw || 4 >= raw.length)
             return NOT_HTTP;
         int tmp = DecodeUtils.pin3bytes(raw[0], raw[1], raw[2]);
@@ -71,7 +71,7 @@ public class HttpDecode {
     /**
      * 返回http包中 (1)请求行/状态行(2)头部(3)空行的部分。
      * */
-    public static String getHttpHeader(byte[] raw) {
+    private static String getHttpHeader(byte[] raw) {
         int httpType = isBytesHTTPHeader(raw);
         if (NOT_HTTP == httpType) {
             return null;
@@ -100,7 +100,7 @@ public class HttpDecode {
         return buf.toString();
     }
 
-    public static void decodeFirstLine(String firstLine, TcpRecord record, long timeStamp) {
+    private static void decodeFirstLine(String firstLine, TcpRecord record, long timeStamp) {
         String[] c = firstLine.split(" ");
         if (c.length < 3) {
             return; // Can't parse it
@@ -146,7 +146,7 @@ public class HttpDecode {
         }
     }
 
-    public static String urlDivide(String rawUrl) {
+    private static String urlDivide(String rawUrl) {
         if (null == rawUrl)
             return null;
         int index = rawUrl.indexOf('?');
