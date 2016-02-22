@@ -3,6 +3,7 @@ package pcap.table;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
 import pcap.decode.HttpDecode;
+import pcap.decode.MysqlDecode;
 import pcap.record.TcpRecord;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
@@ -126,13 +127,14 @@ public class TcpTable implements TableAction {
         } else if (type.equals("http")) {
             HttpDecode.decode(tcp, record, timeStamp);
         } else if (type.equals("mysql")) {
+            MysqlDecode.decode(tcp, record, timeStamp);
         } else if (type.equals("pgsql")) {
-        } else if (type.equals("redis")) {
         } else if (type.equals("mongodb")) {
+        } else if (type.equals("thrift")) {
+        } else if (type.equals("redis")) {
         } else if (type.equals("ldap")) {
         }
     }
-
     @Override
     public void clean() {
         System.out.println("TcpTable clean");

@@ -2,7 +2,6 @@ package pcap.test;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
-import pcap.decode.HttpDecode;
 import pcap.record.TcpRecord;
 import pcap.table.TableAction;
 import pcap.utils.BasicUtils;
@@ -39,8 +38,8 @@ public class JavaTest {
 
     public static void test2() {
         String rawUrl = "/abcdefg?asdasda";
-        String url = HttpDecode.urlDivide(rawUrl);
-        System.out.println(url);
+        // String url = HttpDecode.urlDivide(rawUrl);
+        // System.out.println(url);
     }
 
     // json属性控制
@@ -75,8 +74,8 @@ public class JavaTest {
 
     public static void test5() {
         String rawUrl = "/abcdefg";
-        String url = HttpDecode.urlDivide(rawUrl);
-        System.out.println(url);
+        // String url = HttpDecode.urlDivide(rawUrl);
+        // System.out.println(url);
     }
 
     public static final int BYTETOVALUE = 0x00ff;

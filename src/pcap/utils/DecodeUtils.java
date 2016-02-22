@@ -76,9 +76,9 @@ public class DecodeUtils {
     /**
      * 尚未不完整
      * 
-     * 通过characterSetCode 返回响应的字符集对象，如果出错则返回"UTF-8"对应的字符集.
+     * 通过characterSetCode 返回响应的字符集对象，如果出错则返回默认对应的字符集.
      * 
-     * 如果考虑mysql, 其实应该是 "ISO-8859-1"对应的字符集(latin1), 不过无所谓，反正目前相当于测试
+     * 如果考虑mysql, 默认字符集是 "ISO-8859-1"对应的字符集(latin1)。
      * */
     public static Charset charSet(int characterSetCode) {
 
@@ -88,7 +88,7 @@ public class DecodeUtils {
         String enc = "UTF-8";
         Charset charset = null;
         if (enc == null)
-            return Charset.forName("UTF-8");
+            return Charset.forName("ISO-8859-1");
 
         try {
             charset = Charset.forName(enc);

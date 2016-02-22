@@ -19,12 +19,31 @@ public class CompressUtils {
      * @return byte[] 压缩后的数据
      */
     public static byte[] zlibCompress(byte[] data) {
+        return zlibCompress(data, 0, data.length);
+    }
+
+    /**
+     * zlib压缩
+     * 
+     * @param data
+     *            待压缩数据
+     * @param offset
+     *            压缩数据起始位置
+     * @param length
+     *            压缩数据长度
+     * @return byte[] 压缩后的数据
+     */
+    public static byte[] zlibCompress(byte[] data, int offset, int length) {
         byte[] output = new byte[0];
 
         Deflater compresser = new Deflater();
 
         compresser.reset();
-        compresser.setInput(data);
+        try {
+            compresser.setInput(data, offset, length);
+        } catch (Exception e) {
+            return null;
+        }
         compresser.finish();
         ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
         try {
@@ -53,15 +72,30 @@ public class CompressUtils {
      * 
      * @param data
      *            待压缩数据
-     * 
      * @param os
      *            输出流
      */
     public static void zlibCompress(byte[] data, OutputStream os) {
+        zlibCompress(data, 0, data.length);
+    }
+
+    /**
+     * zlib压缩
+     * 
+     * @param data
+     *            待压缩数据
+     * @param offset
+     *            压缩数据起始位置
+     * @param length
+     *            压缩数据长度
+     * @param os
+     *            输出流
+     */
+    public static void zlibCompress(byte[] data, int offset, int length, OutputStream os) {
         DeflaterOutputStream dos = new DeflaterOutputStream(os);
 
         try {
-            dos.write(data, 0, data.length);
+            dos.write(data, offset, length);
 
             dos.finish();
 
@@ -79,11 +113,30 @@ public class CompressUtils {
      * @return byte[] 解压缩后的数据
      */
     public static byte[] zlibDecompress(byte[] data) {
-        byte[] output = new byte[0];
+        return zlibDecompress(data, 0, data.length);
+    }
+
+    /**
+     * zlib解压缩
+     * 
+     * @param data
+     *            待压缩数据
+     * @param offset
+     *            压缩数据起始位置
+     * @param length
+     *            压缩数据长度
+     * @return byte[] 解压缩后的数据
+     */
+    public static byte[] zlibDecompress(byte[] data, int offset, int length) {
+        byte[] output = null;
 
         Inflater decompresser = new Inflater();
         decompresser.reset();
-        decompresser.setInput(data);
+        try {
+            decompresser.setInput(data, offset, length);
+        } catch (Exception e) {
+            return null;
+        }
 
         ByteArrayOutputStream o = new ByteArrayOutputStream(data.length);
         try {
@@ -116,6 +169,8 @@ public class CompressUtils {
      * @return byte[] 解压缩后的数据
      */
     public static byte[] zlibDecompress(InputStream is) {
+        if (null == is)
+            return null;
         InflaterInputStream iis = new InflaterInputStream(is);
         ByteArrayOutputStream o = new ByteArrayOutputStream(1024);
         try {

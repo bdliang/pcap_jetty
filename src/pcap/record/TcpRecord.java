@@ -1,6 +1,7 @@
 package pcap.record;
 
 import net.sf.json.JsonConfig;
+import pcap.constant.MysqlCharacterSet;
 import pcap.constant.TcpStatus;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
@@ -45,7 +46,13 @@ public class TcpRecord {
     private long timeStamp;
     private String info;
 
-    // / mysql 使用
+    /**
+     * mysql使用， 用来记录mysql连接的压缩，加密，字符集属性。
+     * 
+     * 默认值 不压缩，不加密， latin1的字符集
+     * 
+     * @see MysqlCharacterSet
+     * */
     private boolean Compress;
     private boolean SSL;
     private int characterSetCode; // 用于记录mysql的字符集
@@ -65,7 +72,7 @@ public class TcpRecord {
 
         Compress = false;
         SSL = false;
-        characterSetCode = -1;
+        characterSetCode = 0x08;
     }
 
     /**
@@ -86,9 +93,7 @@ public class TcpRecord {
         if (isSrcType) {
             typeSrc = PropertyUtils.AppLayerName(index);
             typeIndex = TYPE_SRC;
-        }
-
-        else {
+        } else {
             typeDst = PropertyUtils.AppLayerName(index);
             typeIndex = TYPE_DST;
         }
