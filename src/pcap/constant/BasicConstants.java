@@ -2,7 +2,14 @@ package pcap.constant;
 
 public class BasicConstants {
 
-    // / 用来设置定时清空 ConnectPairMap 的时间间隔
-    public static final int CLEANTIME = 60;
+    public static final int WRONG_ARGUMENT = -3;
+    public static final int APP_NOT_FOUND = -2;
+    public static final int NOT_FOUND = -1;
+    public static final int OK_FOUND = 0;
+    public static final int OK_FOUND_SRC = 1;
+    public static final int OK_FOUND_DST = 2;
+
+    public static final int DST_PORT_ENCODE = 0x40000000;
+    public static final int DST_PORT_DECODE = 0x3fffffff;
 
 }

@@ -29,10 +29,6 @@ public class TcpTable implements TableAction {
         ipMapPort = new ConcurrentHashMap<Long, Map<Integer, TcpRecord>>();
     }
 
-    public int mapNum() {
-        return ipMapPort.size();
-    }
-
     public static TcpTable getInstance() {
         if (null == single) {
             synchronized (TcpTable.class) {
@@ -42,6 +38,10 @@ public class TcpTable implements TableAction {
             }
         }
         return single;
+    }
+
+    public int mapNum() {
+        return ipMapPort.size();
     }
 
     public void searchPortMapLink(Map<Integer, TcpRecord> map, int portPair, int ipSrc, int portSrc, int ipDst, int portDst, int index,

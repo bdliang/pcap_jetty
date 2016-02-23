@@ -1,6 +1,7 @@
 package pcap.record;
 
 import net.sf.json.JsonConfig;
+import pcap.constant.BasicConstants;
 import pcap.constant.MysqlCharacterSet;
 import pcap.constant.TcpStatus;
 import pcap.utils.BasicUtils;
@@ -85,8 +86,8 @@ public class TcpRecord {
         }
 
         boolean isSrcType = true;
-        if (index >= PropertyUtils.DST_PORT_ENCODE) {
-            index &= PropertyUtils.DST_PORT_DECODE;
+        if (index >= BasicConstants.DST_PORT_ENCODE) {
+            index &= BasicConstants.DST_PORT_DECODE;
             isSrcType = false;
         }
 
