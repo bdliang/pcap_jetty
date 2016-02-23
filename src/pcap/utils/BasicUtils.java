@@ -164,4 +164,8 @@ public class BasicUtils {
         }
         System.out.println();
     }
+
+    public static boolean isPortValid(int port) {
+        return (port >= 0 && port <= 65535) ? true : false;
+    }
 }

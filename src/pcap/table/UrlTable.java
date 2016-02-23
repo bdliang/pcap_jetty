@@ -4,7 +4,6 @@ import pcap.record.UrlRecord;
 import pcap.record.UrlRecord.HttpItems;
 import pcap.result.UrlLastTime;
 import pcap.utils.BasicUtils;
-import pcap.utils.PropertyUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -58,7 +57,7 @@ public class UrlTable implements TableAction {
      * */
     public UrlRecord getUrlRecord(int ip, int port, String url) {
         UrlRecord record = null;
-        if (!PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
+        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return null;
 
         long key = BasicUtils.ping2Int(ip, port);
@@ -175,7 +174,7 @@ public class UrlTable implements TableAction {
 
     /* 根据ip/port查找 */
     public int getCountByIpPort(int ip, int port, HttpItems item) {
-        if (PropertyUtils.isPortValid(port) || null == item || HttpItems.OTHER == item)
+        if (!BasicUtils.isPortValid(port) || null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
         long key = BasicUtils.ping2Int(ip, port);
@@ -189,7 +188,7 @@ public class UrlTable implements TableAction {
     }
 
     public double getAvgTimeByIpPort(int ip, int port) {
-        if (PropertyUtils.isPortValid(port))
+        if (!BasicUtils.isPortValid(port))
             return 0.0;
         long time = 0;
         long cnt = 0;
@@ -208,7 +207,7 @@ public class UrlTable implements TableAction {
 
     /* 根据ip/port/url查找 */
     public int getCountByIpPortUrl(int ip, int port, String url, HttpItems item) {
-        if (PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
+        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return 0;
         int cnt = 0;
         long key = BasicUtils.ping2Int(ip, port);
@@ -221,7 +220,7 @@ public class UrlTable implements TableAction {
     }
 
     public double getAvgTimeByIpPortUrl(int ip, int port, String url) {
-        if (PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
+        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return 0.0;
         long time = 0;
         long cnt = 0;
@@ -239,7 +238,7 @@ public class UrlTable implements TableAction {
 
     public UrlLastTime getLastTimeByIpPortUrl(int ip, int port, String url) {
         UrlLastTime re = null;
-        if (PropertyUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
+        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return null;
 
         long key = BasicUtils.ping2Int(ip, port);

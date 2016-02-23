@@ -3,7 +3,6 @@ package pcap.table;
 import pcap.record.MysqlServerRecord;
 import pcap.record.MysqlServerRecord.MysqlItems;
 import pcap.utils.BasicUtils;
-import pcap.utils.PropertyUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,7 +49,7 @@ public class MysqlServerTable implements TableAction {
      * */
     public MysqlServerRecord getMysqlServerRecord(int ip, int port) {
         MysqlServerRecord record = null;
-        if (!PropertyUtils.isPortValid(port))
+        if (!BasicUtils.isPortValid(port))
             return null;
 
         long key = BasicUtils.ping2Int(ip, port);
@@ -129,7 +128,6 @@ public class MysqlServerTable implements TableAction {
 
     @Override
     public void dumpToFile() {
-        // TODO Auto-generated method stub
         File file = new File(TableAction.filePath);
         try {
             if (!file.exists()) {

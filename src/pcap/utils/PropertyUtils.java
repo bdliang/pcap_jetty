@@ -196,9 +196,9 @@ public class PropertyUtils {
         }
     }
 
-    public static boolean isPortValid(int port) {
-        return (port >= 0 && port <= 65535) ? true : false;
-    }
+    // public static boolean isPortValid(int port) {
+    // return (port >= 0 && port <= 65535) ? true : false;
+    // }
 
     /**
      * 监测 源，目的两个端口，是否有一个是监控的端口。
@@ -206,12 +206,10 @@ public class PropertyUtils {
      * 如果源端口是监测端口， 返回对应应用协议名的序号 ;如果目的端口是监测端口， 返回 （对应应用协议名的序号） | DST_PORT_ENCODE
      * 次高位值1， 其余位不变， 结果 >= DST_PORT_ENCODE。
      * 
-     * 如果端口号不规范， WRONG_ARGUMENT
-     * 
-     * 没找到， NOT_FOUND
+     * 如果端口号不规范， WRONG_ARGUMENT(-3); 没找到， NOT_FOUND(-1)
      * */
     public static int hasPort(int srcPort, int dstPort) {
-        if (!isPortValid(srcPort) || !isPortValid(dstPort))
+        if (!BasicUtils.isPortValid(srcPort) || !BasicUtils.isPortValid(dstPort))
             return WRONG_ARGUMENT;
 
         int i = 0;
@@ -228,17 +226,17 @@ public class PropertyUtils {
         return NOT_FOUND;
     }
 
-    public static int EnCode(int i) {
-        if (i > PropertyUtils.DST_PORT_ENCODE)
-            return i | DST_PORT_ENCODE;
-        return i;
-    }
-
-    public static int DeCode(int i) {
-        if (i >= PropertyUtils.DST_PORT_ENCODE)
-            return i & DST_PORT_DECODE;
-        return i;
-    }
+    // public static int EnCode(int i) {
+    // if (i > PropertyUtils.DST_PORT_ENCODE)
+    // return i | DST_PORT_ENCODE;
+    // return i;
+    // }
+    //
+    // public static int DeCode(int i) {
+    // if (i >= PropertyUtils.DST_PORT_ENCODE)
+    // return i & DST_PORT_DECODE;
+    // return i;
+    // }
 
     /**
      * 通过 应用层协议名， 查询对应端口是否在监测端口中
@@ -248,7 +246,7 @@ public class PropertyUtils {
      * 注意: ！！这里假设 src, dst不会同时是监控端口
      * */
     public static int hasPortForApp(String app, int srcPort, int dstPort) {
-        if (!isPortValid(srcPort) || !isPortValid(dstPort) || BasicUtils.isStringBlank(app))
+        if (!BasicUtils.isPortValid(srcPort) || !BasicUtils.isPortValid(dstPort) || BasicUtils.isStringBlank(app))
             return WRONG_ARGUMENT;
 
         if (!AppToPorts.containsKey(app))
@@ -260,7 +258,6 @@ public class PropertyUtils {
         if (ports.contains(dstPort))
             return OK_FOUND_DST;
         return NOT_FOUND;
-
     }
 
 }

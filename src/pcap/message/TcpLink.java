@@ -1,5 +1,6 @@
 package pcap.message;
 
+import pcap.constant.BasicConstants;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
@@ -84,8 +85,8 @@ public class TcpLink {
 
     public void decodeType(int index) {
         boolean isSrcType = true;
-        if (index >= PropertyUtils.DST_PORT_ENCODE) {
-            index &= PropertyUtils.DST_PORT_DECODE;
+        if (index >= BasicConstants.DST_PORT_ENCODE) {
+            index &= BasicConstants.DST_PORT_DECODE;
             isSrcType = false;
         }
 
