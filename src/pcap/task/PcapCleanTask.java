@@ -1,6 +1,7 @@
 package pcap.task;
 
-import pcap.message.ConnectionPairMap;
+import pcap.table.TcpTable;
+import pcap.table.UrlTable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +28,7 @@ public class PcapCleanTask extends AbstractTask {
 
     @Override
     public void run() {
-        ConnectionPairMap.getInstance().clean();
+        TcpTable.getInstance().clean();
+        UrlTable.getInstance().clean();
     }
 }

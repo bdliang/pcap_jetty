@@ -82,8 +82,8 @@ public class CaptureCore implements Runnable {
 
         }
 
-        int snaplen = Pcap.DEFAULT_SNAPLEN;// ����65536
-        int flags = Pcap.MODE_PROMISCUOUS;// ����ģʽ
+        int snaplen = Pcap.DEFAULT_SNAPLEN;
+        int flags = Pcap.MODE_PROMISCUOUS;
         int timeout = BasicUtils.DEFAULT_TIMEOUT;
         // StringBuilder errsb = null;
         Pcap pcap = Pcap.openLive(deviceName, snaplen, flags, timeout, errbuf);
@@ -114,7 +114,7 @@ public class CaptureCore implements Runnable {
 
         capNum = 0;
         int loopNumTmp = loopNum;
-        while (IS_CAPTURE && loopNumTmp > 0 && Pcap.OK == pcap.loop(eachCatch, myhandler, "jNetPcap rocks!")) {
+        while (IS_CAPTURE && loopNumTmp > 0 && Pcap.OK == pcap.loop(eachCatch, myhandler, null)) {
             --loopNumTmp;
             capNum += eachCatch;
             if (1 == loopNumTmp && allTime)

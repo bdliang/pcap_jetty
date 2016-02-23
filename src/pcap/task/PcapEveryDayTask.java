@@ -1,7 +1,6 @@
 package pcap.task;
 
-import pcap.message.ConnectionPairMap;
-import pcap.message.TcpLinksForRequest;
+import pcap.table.TcpTable;
 
 import java.util.Calendar;
 
@@ -50,9 +49,7 @@ public class PcapEveryDayTask extends AbstractTask {
 
     @Override
     public void run() {
-
         System.err.println("每天任务");
-        TcpLinksForRequest.getInstance().clean();
-        ConnectionPairMap.getInstance().clean();
+        TcpTable.getInstance().clean();
     }
 }

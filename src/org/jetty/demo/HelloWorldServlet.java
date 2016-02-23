@@ -6,10 +6,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-//Servlet
+
 public class HelloWorldServlet extends HttpServlet {
 
-    // 访问url反参数
+    /**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = -317672973911602125L;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // System.out.println("doGet2");

@@ -8,7 +8,7 @@ public abstract class AbstractTask implements Runnable {
 
     private long initialDelay;
     private long period;
-    private TimeUnit unit;
+    private TimeUnit timeUnit;
 
     public AbstractTask() {
         this("", 2, 2, TimeUnit.SECONDS);
@@ -22,7 +22,7 @@ public abstract class AbstractTask implements Runnable {
         taskName = name;
         this.initialDelay = initialDelay;
         this.period = period;
-        this.unit = unit;
+        this.timeUnit = unit;
     }
 
     public String getTaskName() {
@@ -46,11 +46,11 @@ public abstract class AbstractTask implements Runnable {
     }
 
     public void setTimeUnit(TimeUnit unit) {
-        this.unit = unit;
+        this.timeUnit = unit;
     }
 
     public TimeUnit getTimeUnit() {
-        return unit;
+        return timeUnit;
     }
 
 }

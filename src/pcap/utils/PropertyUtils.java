@@ -73,9 +73,7 @@ public class PropertyUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        String cleantime = pps.getProperty("cleantime");
-
+        // String cleantime = pps.getProperty("cleantime");
     }
 
     public static void loadPortsMapFromFile() {
@@ -106,8 +104,8 @@ public class PropertyUtils {
                     continue;
                 result.add(re);
             }
-            RunTimeAppLayer.add(str);
-            AppToPorts.put(str, result);
+            RunTimeAppLayer.add(str.toLowerCase());
+            AppToPorts.put(str.toLowerCase(), result);
         }
         // printMapAppToPorts();
     }
@@ -115,8 +113,10 @@ public class PropertyUtils {
     // public static String[] AppLayer = {"http", "mysql", "pgsql", "mongodb",
     // "redis"};
 
+    /* 存放所有监测的名称 */
     private static List<String> RunTimeAppLayer = null;
 
+    /* 存放所有监测的名称 和对应端口号 */
     private static Map<String, List<Integer>> AppToPorts = null;
 
     public static String AppLayerName(int index) {
@@ -158,8 +158,8 @@ public class PropertyUtils {
             // 重复， 忽略
             return;
         }
-        RunTimeAppLayer.add(str);
-        AppToPorts.put(str, ports);
+        RunTimeAppLayer.add(str.toLowerCase());
+        AppToPorts.put(str.toLowerCase(), ports);
     }
 
     public static void printRunTimeAppLayer() {
@@ -183,6 +183,10 @@ public class PropertyUtils {
         System.out.println();
     }
 
+    public static List<Integer> getAppPort(String appName) {
+        return AppToPorts.get(appName);
+    }
+
     public static int isPort(String str) {
         try {
             int num = Integer.valueOf(str);
@@ -197,7 +201,7 @@ public class PropertyUtils {
     }
 
     /**
-     * 监测 源，目的两个端口，是否有一个是监控的端口
+     * 监测 源，目的两个端口，是否有一个是监控的端口。
      * 
      * 如果源端口是监测端口， 返回对应应用协议名的序号 ;如果目的端口是监测端口， 返回 （对应应用协议名的序号） | DST_PORT_ENCODE
      * 次高位值1， 其余位不变， 结果 >= DST_PORT_ENCODE。

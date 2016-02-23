@@ -41,9 +41,26 @@ public class TaskManager {
         service.scheduleWithFixedDelay(task, task.getInitialDelay(), task.getPeriod(), task.getTimeUnit());
     }
 
+    /**
+     * 添加执行一次的任务，用于sniff。
+     * */
     public void addOnceTask(Runnable task, int initialDelay, TimeUnit unit) {
         if (null == task)
             return;
         service.schedule(task, initialDelay, unit);
+    }
+
+    /**
+     * 停止所有任务，如果有正在执行的，则执行完。
+     * */
+    public void shutdown() {
+        service.shutdown();
+    }
+
+    /**
+     * 立刻停止所有任务。
+     * */
+    public void shutdownNow() {
+        service.shutdownNow();
     }
 }

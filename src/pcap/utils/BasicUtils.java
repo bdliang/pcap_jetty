@@ -13,8 +13,12 @@ public class BasicUtils {
     public static final int NUM_EACH_CAPTURE = 10;
     public static final int DEFAULT_TIMEOUT = 500; // in millis
 
-    private static int u(byte b) {
-        return (b >= 0) ? b : b + 256;
+    /**
+     * 将byte型按位转换成相应无符号整数值
+     * */
+    public static int u(byte b) {
+        // return (b >= 0) ? b : b + 256;
+        return 0xff & b;
     }
 
     public static String IpAddrToString(byte[] addr) {
@@ -31,12 +35,11 @@ public class BasicUtils {
         }
     }
 
-    public static void PrintIpAddr(byte[] addr) {
+    public static void printIpAddr(byte[] addr) {
         System.out.println(IpAddrToString(addr));
     }
 
-    // ����MAC��ַ
-    public static String MacAddrToString(byte[] addr) {
+    public static String macAddrToString(byte[] addr) {
         if (ETHERNET_HEADER_LEN != addr.length)
             return null;
         else {
@@ -50,8 +53,8 @@ public class BasicUtils {
         }
     }
 
-    public static void PrintMacAddr(byte[] addr) {
-        System.out.println(MacAddrToString(addr));
+    public static void printMacAddr(byte[] addr) {
+        System.out.println(macAddrToString(addr));
     }
 
     public static boolean isArrayValid(Object[] array) {
@@ -105,6 +108,13 @@ public class BasicUtils {
         return (int) ipPair;
     }
 
+    public static int getHigh2BytesFromLong(int portPair) {
+        return portPair >>> 16;
+    }
+    public static int getLow2BytesFromLong(int portPair) {
+        return portPair & INT_HALF_ZERO_HALF_ONE;
+    }
+
     // 将2个port 拼成一个 int 按位
     public static int ping2port(int int1, int int2) {
         int x1 = int1 << 16;
@@ -128,7 +138,7 @@ public class BasicUtils {
         return str.toString();
     }
 
-    public static int IpStringToInt(String ipStr) {
+    public static int ipStringToInt(String ipStr) {
         String[] fields = ipStr.split("\\.");
         if (4 != fields.length)
             return 0;
@@ -142,5 +152,16 @@ public class BasicUtils {
             result += tmp;
         }
         return result;
+    }
+
+    public static void printTcpPayLoad(byte[] payload) {
+        if (null == payload)
+            return;
+        for (int i = 0; i < payload.length; ++i) {
+            // if (0 == i % 48)
+            // System.out.println();
+            System.out.print((char) payload[i]);
+        }
+        System.out.println();
     }
 }

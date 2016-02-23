@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 单例模式
  * 
  * */
+
+@Deprecated
 public class ConnectionPairMap {
 
     private static ConnectionPairMap single;

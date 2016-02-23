@@ -3,6 +3,7 @@ package pcap.message;
 import pcap.utils.BasicUtils;
 import pcap.utils.PropertyUtils;
 
+@Deprecated
 public class TcpLink {
 
     public static final String SEPERATOR = " ";
