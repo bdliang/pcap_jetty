@@ -5,7 +5,6 @@ import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
 import pcap.table.TcpTable;
-import pcap.utils.PropertyUtils;
 
 public class PacketMatch {
 
@@ -61,7 +60,7 @@ public class PacketMatch {
         }
 
         // System.out.println("\t" + srcPort + " " + +dstPort + " ");
-        int index = PropertyUtils.hasPort(srcPort, dstPort);
+        int index = PortMonitorMap.getInstance().hasPort(srcPort, dstPort);
         if (index < 0)
             return;
 

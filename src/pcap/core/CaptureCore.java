@@ -6,7 +6,6 @@ import org.jnetpcap.PcapIf;
 
 import pcap.handler.MyPcapHandler;
 import pcap.utils.BasicUtils;
-import pcap.utils.PropertyUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,10 +23,6 @@ public class CaptureCore implements Runnable {
     public static final int NUM_EACH_CAPTURE = 10;
 
     public static List<PcapIf> allDevs = null;
-
-    static {
-        PropertyUtils.defaultConfiguration();
-    }
 
     public static void EnableCapture() {
         IS_CAPTURE = true;

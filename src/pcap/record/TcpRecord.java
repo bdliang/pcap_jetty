@@ -4,8 +4,8 @@ import net.sf.json.JsonConfig;
 import pcap.constant.BasicConstants;
 import pcap.constant.MysqlCharacterSet;
 import pcap.constant.TcpStatus;
+import pcap.core.PortMonitorMap;
 import pcap.utils.BasicUtils;
-import pcap.utils.PropertyUtils;
 
 public class TcpRecord {
 
@@ -92,10 +92,10 @@ public class TcpRecord {
         }
 
         if (isSrcType) {
-            typeSrc = PropertyUtils.AppLayerName(index);
+            typeSrc = PortMonitorMap.getInstance().AppLayerName(index);
             typeIndex = TYPE_SRC;
         } else {
-            typeDst = PropertyUtils.AppLayerName(index);
+            typeDst = PortMonitorMap.getInstance().AppLayerName(index);
             typeIndex = TYPE_DST;
         }
     }

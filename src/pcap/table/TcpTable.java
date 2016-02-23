@@ -2,11 +2,11 @@ package pcap.table;
 
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+import pcap.core.PortMonitorMap;
 import pcap.decode.HttpDecode;
 import pcap.decode.MysqlDecode;
 import pcap.record.TcpRecord;
 import pcap.utils.BasicUtils;
-import pcap.utils.PropertyUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -110,7 +110,7 @@ public class TcpTable implements TableAction {
             for (Integer portPair : portMap.keySet()) {
                 int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
                 int low2 = BasicUtils.getLow2BytesFromLong(portPair);
-                List<Integer> ports = PropertyUtils.getAppPort("http".toLowerCase());
+                List<Integer> ports = PortMonitorMap.getInstance().getAppPort("http".toLowerCase());
                 if (ports.contains(high2) || ports.contains(low2)) {
                     result.add(portMap.get(portPair));
                 }
