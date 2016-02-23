@@ -1,5 +1,6 @@
 package org.jetty.demo;
 
+import pcap.record.MysqlServerRecord.MysqlItems;
 import pcap.utils.BasicUtils;
 import pcap.utils.CompressUtils;
 import pcap.utils.DecodeUtils;
@@ -15,7 +16,7 @@ import java.util.Set;
 public class BasicTest {
 
     public static void main(String[] args) {
-        test9();
+        test11();
     }
 
     public static void test1() {
@@ -245,4 +246,13 @@ public class BasicTest {
 
         System.out.println("\n###############");
     }
+
+    public static void test11() {
+
+        for (MysqlItems item : MysqlItems.values()) {
+            System.out.println(item.name());
+        }
+
+    }
+
 }

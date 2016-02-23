@@ -84,8 +84,13 @@ public class DecodeUtils {
 
         // 省略将对应characterSetCode转换为对应字符串
         // 需要补充
+        String enc = null;
+        if (0x08 == characterSetCode) {
+            enc = "ISO-8859-1";
+        } else if (0x21 == characterSetCode) {
+            enc = "UTF-8";
+        }
 
-        String enc = "UTF-8";
         Charset charset = null;
         if (enc == null)
             return Charset.forName("ISO-8859-1");
@@ -93,13 +98,12 @@ public class DecodeUtils {
         try {
             charset = Charset.forName(enc);
         } catch (IllegalCharsetNameException e) {
-            return Charset.forName("UTF-8");
+            return Charset.forName("ISO-8859-1");
         } catch (UnsupportedCharsetException e) {
-            return Charset.forName("UTF-8");
+            return Charset.forName("ISO-8859-1");
         }
         return charset;
     }
-
     /**
      * mysql length-coeded integer的解码
      * */

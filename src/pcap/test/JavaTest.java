@@ -37,7 +37,7 @@ public class JavaTest {
     }
 
     public static void test2() {
-        String rawUrl = "/abcdefg?asdasda";
+        // String rawUrl = "/abcdefg?asdasda";
         // String url = HttpDecode.urlDivide(rawUrl);
         // System.out.println(url);
     }
@@ -73,7 +73,7 @@ public class JavaTest {
     }
 
     public static void test5() {
-        String rawUrl = "/abcdefg";
+        // String rawUrl = "/abcdefg";
         // String url = HttpDecode.urlDivide(rawUrl);
         // System.out.println(url);
     }

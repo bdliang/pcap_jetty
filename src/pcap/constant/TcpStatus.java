@@ -10,8 +10,8 @@ public class TcpStatus {
     public static final int HTTP_REQUEST = 1;
     public static final int HTTP_RESPONSE = 2;
 
-    public static final int START_HANDSHAKE = 10;
-    public static final int END_HANDSHAKE = 11;
+    public static final int HANDSHAKE_REQUEST = 10;
+    public static final int HANDSHAKE_RESPONSE = 11;
     public static final int START_QUERY = 11;
     public static final int ANSR_QUERY_OK = 12; // 用于resultSet的判断，
                                                 // sql查询语句需要服务器返回操作结果, 例如 insert

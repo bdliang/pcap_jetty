@@ -112,12 +112,14 @@ public class MysqlDecode {
 
         int seq = BasicUtils.u(payload[offset + 3]);
         int requestType = BasicUtils.u(payload[offset + headerLength]);
-        MysqlServerRecord mysqlServerRecord = null;
+        MysqlServerRecord mysqlServerRecord = MysqlServerTable.getInstance().getMysqlServerRecord(record.typeIp(), record.typePort());
+        if (null == mysqlServerRecord)
+            return;
 
         if (!clientToServer && 0 == seq) {
             // 表明是handshake.
-            record.setStatus(TcpStatus.START_HANDSHAKE);
-        } else if (0 == seq) {
+            record.setStatus(TcpStatus.HANDSHAKE_REQUEST);
+        } else if (clientToServer && 0 == seq) {
             // 可能是 query
             if (MysqlClientRequestType.COM_QUERY == requestType) {
                 record.setStatus(TcpStatus.START_QUERY);
@@ -127,7 +129,7 @@ public class MysqlDecode {
                 Charset charSet = DecodeUtils.charSet(record.getCharacterSetCode());
                 // !!!尚未完成需要利用 . record中记录的值来判断字符集
 
-                String sql = new String(payload, offset + headerLength + 1, mysqlLength, charSet);
+                String sql = new String(payload, offset + headerLength + 1, (mysqlLength - 1 > 100) ? 100 : mysqlLength - 1, charSet);
                 int tmpSubLength = (10 > sql.length()) ? sql.length() : 10;
                 String sqlSub = sql.substring(0, tmpSubLength).toLowerCase();
                 MysqlItems item = null;
@@ -137,16 +139,14 @@ public class MysqlDecode {
                         break;
                     }
                 }
-                if (null == item)
-                    return;
-                mysqlServerRecord = MysqlServerTable.getInstance().getMysqlServerRecord(record.typeIp(), record.typePort());
-                if (null == mysqlServerRecord)
+                if (null == item || MysqlItems.OTHER == item)
                     return;
                 mysqlServerRecord.addItem(item);
             } else if (MysqlClientRequestType.COM_QUIT == requestType) {
                 // 因为记录mysql ssl, compress，
                 // charset选项的是TcpRecord，每个对象记录在TcpTable中，TcpTable会定时清理，所以当一个mysql连接跨越1个监测周期时，如果有compress,ssl,char
-                // set等非默认的选项时， 会出现不能正确解包的情况。所以可能需要把mysql的连接单独记录。这里用来识别mysql
+                // set等非默认的选项时，
+                // 会出现不能正确解包的情况。所以可能需要把不是默认选项的mysql的连接单独记录。这里用来识别mysql
                 // client主动断开连接时，与server通信的情况。可用来将对应的mysql单独记录删除。
                 record.setStatus(TcpStatus.MYSQL_QUIT);
             }
@@ -157,32 +157,21 @@ public class MysqlDecode {
                 return;
             if (0x00 == requestType) {
                 // OK包
-                if (TcpStatus.START_QUERY != record.getStatus() || mysqlLength >= 7)
-                    return;
                 record.setStatus(TcpStatus.ANSR_QUERY_OK);
-                mysqlServerRecord = MysqlServerTable.getInstance().getMysqlServerRecord(record.typeIp(), record.typePort());
-                if (null == mysqlServerRecord)
-                    return;
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
             } else if (0xff == requestType) {
                 // ERROR包
-                mysqlServerRecord = MysqlServerTable.getInstance().getMysqlServerRecord(record.typeIp(), record.typePort());
-                if (null == mysqlServerRecord)
-                    return;
+                record.setStatus(TcpStatus.ANSR_QUERY_ERROR);
                 mysqlServerRecord.addItem(MysqlItems.ERROR);
+                mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
             } else {
-                // 可能是resultSet
-                if (TcpStatus.START_QUERY != record.getStatus())
-                    return;
-                mysqlServerRecord = MysqlServerTable.getInstance().getMysqlServerRecord(record.typeIp(), record.typePort());
+                // resultSet
                 record.setStatus(TcpStatus.END_QUERY);
-                if (null == mysqlServerRecord)
-                    return;
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
             }
         } else if (clientToServer && 1 == seq) {
             // 可能是客户端回复handshake
-            // decodeHandShakeC2S();
+            decodeHandShakeC2S(payload, offset, mysqlLength, record, timeStamp);
         }
 
     }
@@ -196,9 +185,9 @@ public class MysqlDecode {
     private static void decodeHandShakeC2S(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp) {
         if (null == payload || null == record || offset < 0 || mysqlLength <= 0 || ((offset + mysqlLength) > payload.length))
             return;
-        if (TcpStatus.START_HANDSHAKE != record.getStatus())
+        if (TcpStatus.HANDSHAKE_REQUEST != record.getStatus())
             return;
-        record.setStatus(TcpStatus.END_HANDSHAKE);
+        record.setStatus(TcpStatus.HANDSHAKE_RESPONSE);
         boolean mysqlProtocol41 = false;
         long capabilityFlags = DecodeUtils.litterEndianToLong(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 2);
         if (0L != (MysqlCapabilityFlag.CLIENT_PROTOCOL_41 & capabilityFlags)) {
