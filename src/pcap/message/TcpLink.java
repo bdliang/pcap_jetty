@@ -1,8 +1,8 @@
 package pcap.message;
 
 import pcap.constant.BasicConstants;
+import pcap.core.PortMonitorMap;
 import pcap.utils.BasicUtils;
-import pcap.utils.PropertyUtils;
 
 @Deprecated
 public class TcpLink {
@@ -91,9 +91,9 @@ public class TcpLink {
         }
 
         if (isSrcType)
-            typeSrc = PropertyUtils.AppLayerName(index);
+            typeSrc = PortMonitorMap.getInstance().AppLayerName(index);
         else
-            typeDst = PropertyUtils.AppLayerName(index);
+            typeDst = PortMonitorMap.getInstance().AppLayerName(index);
 
         decode = true;
     }

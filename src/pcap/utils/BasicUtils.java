@@ -168,4 +168,13 @@ public class BasicUtils {
     public static boolean isPortValid(int port) {
         return (port >= 0 && port <= 65535) ? true : false;
     }
+
+    public static int isPort(String str) {
+        try {
+            int num = Integer.valueOf(str);
+            return (num >= 0 && num <= 65535) ? num : -1;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
 }
