@@ -4,18 +4,22 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractTask implements Runnable {
 
-    private String taskName;
+    /** 默认2s后开始执行 */
+    private static int DEFAULT_DELAY = 2; // 单位是 秒
+    /** 默认每2秒执行一次 */
+    private static int DEFAULT_INTERVAL = 2; // 单位是 秒
 
+    private String taskName;
     private long initialDelay;
     private long period;
     private TimeUnit timeUnit;
 
     public AbstractTask() {
-        this("", 2, 2, TimeUnit.SECONDS);
+        this("", DEFAULT_DELAY, DEFAULT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public AbstractTask(String name) {
-        this(name, 2, 2, TimeUnit.SECONDS);
+        this(name, DEFAULT_DELAY, DEFAULT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public AbstractTask(String name, long initialDelay, long period, TimeUnit unit) {

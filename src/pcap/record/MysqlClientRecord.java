@@ -8,16 +8,11 @@ import net.sf.json.JsonConfig;
  * 
  * 例如 : 是否压缩，使用的字符集，是否使用SSL等选项。
  * 
- * 
+ * 将来可能会用到
  * */
 
 @Deprecated
 public class MysqlClientRecord {
-
-    public static final int NULL_STATUS = 0;
-    public static final int START_QUERY = 1;
-    public static final int ANSR_QUERY_OK = 2;
-    public static final int ANSR_QUERY_ERROR = 3;
 
     // 用于转化json时字段控制
     public static final JsonConfig config = new JsonConfig();
@@ -31,7 +26,7 @@ public class MysqlClientRecord {
     private int ipServer;
     private int portServer;
 
-    private int status;
+    private int status; // 参照TcpStatus类
 
     private boolean isCompress;
     private boolean isSSL;

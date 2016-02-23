@@ -20,8 +20,8 @@ public class BasicTest {
     }
 
     public static void test1() {
-        System.out.println(Long.toHexString(BasicUtils.LONG_HALF_ONE_HALF_ZERO));
-        System.out.println(Long.toHexString(BasicUtils.LONG_HALF_ZERO_HALF_ONE));
+        // System.out.println(Long.toHexString(BasicUtils.LONG_HALF_ONE_HALF_ZERO));
+        // System.out.println(Long.toHexString(BasicUtils.LONG_HALF_ZERO_HALF_ONE));
     }
 
     public static void test2() {

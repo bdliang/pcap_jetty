@@ -106,6 +106,8 @@ public class DecodeUtils {
     }
     /**
      * mysql length-coeded integer的解码
+     * 
+     * 将来可能会用到
      * */
     public static MysqlLengthEncodedInteger mysqlLengthCodedIntDecode(byte[] data, int offset) {
         if (null == data || data.length < offset + 1)

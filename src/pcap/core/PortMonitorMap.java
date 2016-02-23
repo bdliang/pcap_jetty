@@ -1,6 +1,7 @@
 package pcap.core;
 
 import pcap.constant.BasicConstants;
+import pcap.record.TcpRecord;
 import pcap.utils.BasicUtils;
 
 import java.io.FileInputStream;
@@ -87,7 +88,8 @@ public class PortMonitorMap {
             }
 
             if (BasicConstants.OK_FOUND_DST == hasPortForApp(str, srcPort, dstPort)) {
-                return i | BasicConstants.DST_PORT_ENCODE;
+                // return i | BasicConstants.DST_PORT_ENCODE;
+                return TcpRecord.EnCode(i);
             }
             ++i;
         }

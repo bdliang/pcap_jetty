@@ -1,7 +1,6 @@
 package pcap.record;
 
 import net.sf.json.JsonConfig;
-import pcap.constant.BasicConstants;
 import pcap.constant.MysqlCharacterSet;
 import pcap.constant.TcpStatus;
 import pcap.core.PortMonitorMap;
@@ -21,14 +20,16 @@ public class TcpRecord {
      *      typeInde 用来标示 哪一方的类型通过端口号判断出来了。
      * */
 
-    public static final String SEPERATOR = " ";
-
     // 用于转化json时字段控制
     public static final JsonConfig config = new JsonConfig();
     static {
         // 只要设置这个数组，指定过滤哪些字段。
         config.setExcludes(new String[]{"info", "type", "timeStamp"});
     }
+
+    /** 如果找到时，需要返回对应的应用索引。这里用来区别是src的应用类型，或者是des的应用类型 */
+    private static final int DST_PORT_ENCODE = 0x40000000;
+    private static final int DST_PORT_DECODE = 0x3fffffff;
 
     private static final byte TYPE_NULL = 0;
     private static final byte TYPE_SRC = 1;
@@ -86,8 +87,8 @@ public class TcpRecord {
         }
 
         boolean isSrcType = true;
-        if (index >= BasicConstants.DST_PORT_ENCODE) {
-            index &= BasicConstants.DST_PORT_DECODE;
+        if (index >= DST_PORT_ENCODE) {
+            index &= DST_PORT_DECODE;
             isSrcType = false;
         }
 
@@ -189,6 +190,15 @@ public class TcpRecord {
     public void setCharacterSetCode(int characterSetCode) {
         this.characterSetCode = characterSetCode;
     }
+
+    /** 是否符合Encode条件需要自己判断，本函数不提供条件判断 */
+    public static int EnCode(int i) {
+        return i | DST_PORT_ENCODE;
+    }
+
+    // public static int DeCode(int i) {
+    // return i & DST_PORT_DECODE;
+    // }
 
     @Override
     public String toString() {

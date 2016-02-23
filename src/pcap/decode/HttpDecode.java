@@ -72,8 +72,8 @@ public class HttpDecode {
      * 返回http包中 (1)请求行/状态行(2)头部(3)空行的部分。
      * */
     private static String getHttpHeader(byte[] raw) {
-        int httpType = isBytesHTTPHeader(raw);
-        if (NOT_HTTP == httpType) {
+        // int httpType = isBytesHTTPHeader(raw);
+        if (NOT_HTTP == isBytesHTTPHeader(raw)) {
             return null;
         }
 

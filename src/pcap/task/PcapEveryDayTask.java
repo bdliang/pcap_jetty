@@ -1,12 +1,11 @@
 package pcap.task;
 
+import pcap.constant.BasicConstants;
 import pcap.table.TcpTable;
 
 import java.util.Calendar;
 
 public class PcapEveryDayTask extends AbstractTask {
-
-    public static long SECONDSOFDAY = 24 * 60 * 60L;
 
     private int hourOfDay;
     private int minuteOfHour;
@@ -23,7 +22,7 @@ public class PcapEveryDayTask extends AbstractTask {
         this.secondOfMinite = secondOfMinite;
 
         setInitialDelay(getEarliestDate() / 1000);
-        setPeriod(SECONDSOFDAY);
+        setPeriod(BasicConstants.SECONDS_OF_A_DAY);
     }
 
     /**
@@ -43,7 +42,7 @@ public class PcapEveryDayTask extends AbstractTask {
 
         long cha = taskDate.getTime().getTime() - currentDate.getTime().getTime();
         if (cha < 0)
-            cha += SECONDSOFDAY * 1000;
+            cha += BasicConstants.SECONDS_OF_A_DAY * 1000;
         return cha;
     }
 

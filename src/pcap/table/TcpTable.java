@@ -21,6 +21,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TcpTable implements TableAction {
 
+    /**
+     * 用于记录TcpRecord的表, 两层map。
+     * 
+     * 将TcpRecord中的ipSrc, ipDst拼成一个long型(ipSrc高4位, ipDst低4位)作为外层map的key。
+     * 将TcpRecord中的portSrc, portDst拼成一个int型(portSrc高2位, portDst低2位)作为内层map的key。
+     * 
+     * 之所以要这样做，是因为给 应用拓扑 服务。用于查与某个ip有关联的应用的查找，参见 selectIpWithHttp()。
+     * 
+     * */
+
     private static TcpTable single;
 
     private Map<Long, Map<Integer, TcpRecord>> ipMapPort;
@@ -59,7 +69,9 @@ public class TcpTable implements TableAction {
     }
 
     /**
-     * 传入的参数需要标准化。 根据解析的tcp信息，加入到TcpTable中。
+     * ###### 传入的参数需要标准化 #######。
+     * 
+     * 根据解析的tcp信息，加入到TcpTable中。
      * */
     public void searchTcpRecord(int ipSrc, int portSrc, int ipDst, int portDst, int index, long timeStamp, Tcp tcp) {
         if (null == tcp || timeStamp <= 0)
@@ -118,6 +130,9 @@ public class TcpTable implements TableAction {
         }
     }
 
+    /**
+     * 所有的decode都从这里调用
+     * */
     public void decodePacket(Tcp tcp, TcpRecord record, long timeStamp) {
         if (null == tcp || null == record)
             return;
@@ -135,6 +150,7 @@ public class TcpTable implements TableAction {
         } else if (type.equals("ldap")) {
         }
     }
+
     @Override
     public void clean() {
         System.out.println("TcpTable clean");

@@ -1,9 +1,5 @@
 package org.jetty.demo;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -11,7 +7,10 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.xml.sax.SAXException;
 
-//总的服务类，本质上是一个分发器
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class JettyCustomServer extends Server {
     private String xmlConfigPath;
 
@@ -23,8 +22,7 @@ public class JettyCustomServer extends Server {
 
     private String webXmlPath = "./webRoot/WEB-INF/web.xml";
 
-    public JettyCustomServer(String xmlConfigPath, String contextPath,
-            String resourceBase, String webXmlPath) {
+    public JettyCustomServer(String xmlConfigPath, String contextPath, String resourceBase, String webXmlPath) {
         this(xmlConfigPath, contextPath, resourceBase, webXmlPath, null);
     }
 
@@ -32,13 +30,11 @@ public class JettyCustomServer extends Server {
         this(xmlConfigPath, contextPath, null, null, null);
     }
 
-    public JettyCustomServer(String xmlConfigPath, String contextPath,
-            String warPath) {
+    public JettyCustomServer(String xmlConfigPath, String contextPath, String warPath) {
         this(xmlConfigPath, contextPath, null, null, warPath);
     }
 
-    public JettyCustomServer(String xmlConfigPath, String contextPath,
-            String resourceBase, String webXmlPath, String warPath) {
+    public JettyCustomServer(String xmlConfigPath, String contextPath, String resourceBase, String webXmlPath, String warPath) {
         super();
         if (StringUtils.isNotBlank(xmlConfigPath)) {
             this.xmlConfigPath = xmlConfigPath;
@@ -66,8 +62,7 @@ public class JettyCustomServer extends Server {
 
     private void readXmlConfig() {
         try {
-            XmlConfiguration configuration = new XmlConfiguration(
-                    new FileInputStream(this.xmlConfigPath));
+            XmlConfiguration configuration = new XmlConfiguration(new FileInputStream(this.xmlConfigPath));
             configuration.configure(this);
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
@@ -103,8 +98,7 @@ public class JettyCustomServer extends Server {
     public void startServer() {
         try {
             super.start();
-            System.out.println("current thread:"
-                    + super.getThreadPool().getThreads() + "| idle thread:"
+            System.out.println("current thread:" + super.getThreadPool().getThreads() + "| idle thread:"
                     + super.getThreadPool().getIdleThreads());
             super.join();
         } catch (Exception e) {

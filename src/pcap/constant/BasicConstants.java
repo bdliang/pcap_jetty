@@ -2,6 +2,7 @@ package pcap.constant;
 
 public class BasicConstants {
 
+    /** 用于端口号查找时的返回值 */
     public static final int WRONG_ARGUMENT = -3;
     public static final int APP_NOT_FOUND = -2;
     public static final int NOT_FOUND = -1;
@@ -9,7 +10,13 @@ public class BasicConstants {
     public static final int OK_FOUND_SRC = 1;
     public static final int OK_FOUND_DST = 2;
 
-    public static final int DST_PORT_ENCODE = 0x40000000;
-    public static final int DST_PORT_DECODE = 0x3fffffff;
+    /** jNetPcap 使用的常量 */
+    public static final int NUM_EACH_CAPTURE = 10;
+    public static final int DEFAULT_TIMEOUT = 500; // 单位是毫秒
+
+    /** task类 使用的常量 */
+    public static long SECONDS_OF_A_DAY = 24 * 60 * 60L;
+    public static int DEFAULT_CLEAN_DELAY = 30; // 单位是 秒
+    public static int DEFAULT_CLEAN_INTERVAL = 30; // 单位是 秒
 
 }

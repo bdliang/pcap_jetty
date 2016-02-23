@@ -10,8 +10,11 @@ public class BasicUtils {
     public static final String MAC_ADDR_SEPERATOR = "-";
     public static final String IP_ADDR_SEPERATOR = ".";
 
-    public static final int NUM_EACH_CAPTURE = 10;
-    public static final int DEFAULT_TIMEOUT = 500; // in millis
+    /** BasicUtils类中 拼类型时使用 */
+    private static long LONG_HALF_ZERO_HALF_ONE = Integer.MAX_VALUE * 2L + 1;
+    // private static long LONG_HALF_ONE_HALF_ZERO = LONG_HALF_ZERO_HALF_ONE <<
+    // 32;
+    private static int INT_HALF_ZERO_HALF_ONE = 0xffff;
 
     /**
      * 将byte型按位转换成相应无符号整数值
@@ -87,10 +90,6 @@ public class BasicUtils {
     public static boolean isStringBlank(String str) {
         return (null == str || 0 == str.length()) ? true : false;
     }
-
-    public static long LONG_HALF_ZERO_HALF_ONE = Integer.MAX_VALUE * 2L + 1;
-    public static long LONG_HALF_ONE_HALF_ZERO = LONG_HALF_ZERO_HALF_ONE << 32;
-    public static int INT_HALF_ZERO_HALF_ONE = 0xffff;
 
     // 将2个int 拼成一个 long 按位
     public static long ping2Int(int int1, int int2) {
