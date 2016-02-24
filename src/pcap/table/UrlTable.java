@@ -56,12 +56,12 @@ public class UrlTable extends Table<Long, Map<String, UrlRecord>> implements Tab
      * 
      * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
      * */
-    public UrlRecord getUrlRecord(int ip, int port, String url, boolean current) {
+    public UrlRecord getUrlRecord(int ip, int port, String url) {
         UrlRecord record = null;
         if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
             return null;
 
-        setWorkingTable(current);
+        setWorkingTable(true);
         long key = BasicUtils.ping2Int(ip, port);
         Map<String, UrlRecord> subMap = workingTable.get(key);
         if (null == subMap) {

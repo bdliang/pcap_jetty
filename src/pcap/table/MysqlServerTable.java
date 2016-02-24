@@ -46,11 +46,11 @@ public class MysqlServerTable extends Table<Long, MysqlServerRecord> implements 
      * 
      * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
      * */
-    public MysqlServerRecord getMysqlServerRecord(int ip, int port, boolean current) {
+    public MysqlServerRecord getMysqlServerRecord(int ip, int port) {
         MysqlServerRecord record = null;
         if (!BasicUtils.isPortValid(port))
             return null;
-        setWorkingTable(current);
+        setWorkingTable(true);
         long key = BasicUtils.ping2Int(ip, port);
         record = workingTable.get(key);
 
