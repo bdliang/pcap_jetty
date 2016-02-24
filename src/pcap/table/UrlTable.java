@@ -105,9 +105,7 @@ public class UrlTable implements TableAction {
                 cnt += record.getTotalCount();
             }
         }
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     /* 根据url查找 */
@@ -134,9 +132,7 @@ public class UrlTable implements TableAction {
             time += record.getTotalTime();
             cnt += record.getTotalCount();
         }
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     /* 根据ip查找 */
@@ -167,9 +163,7 @@ public class UrlTable implements TableAction {
                 cnt += record.getTotalCount();
             }
         }
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     /* 根据ip/port查找 */
@@ -200,9 +194,7 @@ public class UrlTable implements TableAction {
             time += record.getTotalTime();
             cnt += record.getTotalCount();
         }
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     /* 根据ip/port/url查找 */
@@ -229,11 +221,9 @@ public class UrlTable implements TableAction {
         UrlRecord record = null;
         if (null == (subMap = urlMap.get(key)) || null == (record = subMap.get(url)))
             return 0.0;
-        time += record.getTotalTime();
-        cnt += record.getTotalCount();
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        time = record.getTotalTime();
+        cnt = record.getTotalCount();
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     public UrlLastTime getLastTimeByIpPortUrl(int ip, int port, String url) {
