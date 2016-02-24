@@ -13,7 +13,8 @@ public class SniffServerStart {
     public static void startSniff() {
         ProgramInit.init();
         TaskManager manager = new TaskManager();
-        PcapCleanTask cleanTask = new PcapCleanTask("clean", 60, 60, TimeUnit.SECONDS);
+        boolean tableSwitch = false;
+        PcapCleanTask cleanTask = new PcapCleanTask("clean", 60, 60, TimeUnit.SECONDS, tableSwitch);
         PcapLogTask logTask = new PcapLogTask("log", 5, 5, TimeUnit.SECONDS);
         manager.addPeriodTaskAt(cleanTask);
         manager.addPeriodTaskAt(logTask);

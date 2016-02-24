@@ -19,4 +19,6 @@ public class BasicConstants {
     public static int DEFAULT_CLEAN_DELAY = 30; // 单位是 秒
     public static int DEFAULT_CLEAN_INTERVAL = 30; // 单位是 秒
 
+    public static int MYSQL_DEFAULT_CHARACTER_SET_CODE = 0x08; // mysql 默认字符集latin1
+
 }

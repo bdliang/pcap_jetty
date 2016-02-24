@@ -1,6 +1,7 @@
 package pcap.record;
 
 import net.sf.json.JsonConfig;
+import pcap.constant.BasicConstants;
 import pcap.constant.MysqlCharacterSet;
 import pcap.constant.TcpStatus;
 import pcap.core.PortMonitorMap;
@@ -74,7 +75,7 @@ public class TcpRecord {
 
         Compress = false;
         SSL = false;
-        characterSetCode = 0x08;
+        characterSetCode = BasicConstants.MYSQL_DEFAULT_CHARACTER_SET_CODE;
     }
 
     /**
@@ -194,6 +195,20 @@ public class TcpRecord {
     /** 是否符合Encode条件需要自己判断，本函数不提供条件判断 */
     public static int EnCode(int i) {
         return i | DST_PORT_ENCODE;
+    }
+
+    /**
+     * 判断mysql连接是否 不是默认值
+     * 
+     * @return 不是mysql, 返回false; 不是mysql默认值, 返回true; 否则返回false;
+     * 
+     * */
+    public boolean mysqlNotDefault() {
+        if (!getType().equals("mysql".toLowerCase()))
+            return false;
+        if (SSL || Compress || BasicConstants.MYSQL_DEFAULT_CHARACTER_SET_CODE != characterSetCode)
+            return true;
+        return false;
     }
 
     // public static int DeCode(int i) {
