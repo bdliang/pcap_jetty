@@ -20,8 +20,6 @@ public class CaptureCore implements Runnable {
 
     private static boolean IS_CAPTURE = true;
 
-    // public static final int NUM_EACH_CAPTURE = 10;
-
     private static List<PcapIf> allDevs = null;
 
     public static void EnableCapture() {
