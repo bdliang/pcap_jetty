@@ -197,20 +197,23 @@ public class TcpRecord {
         return i | DST_PORT_ENCODE;
     }
 
-    // public static int DeCode(int i) {
-    // return i & DST_PORT_DECODE;
-    // }
-
     /**
-     * 判断mysql属性是否不是默认值
+     * 判断mysql连接是否 不是默认值
+     * 
+     * @return 不是mysql, 返回false; 不是mysql默认值, 返回true; 否则返回false;
+     * 
      * */
     public boolean mysqlNotDefault() {
-        if (!getType().equalsIgnoreCase("mysql"))
+        if (!getType().equals("mysql".toLowerCase()))
             return false;
         if (SSL || Compress || BasicConstants.MYSQL_DEFAULT_CHARACTER_SET_CODE != characterSetCode)
             return true;
         return false;
     }
+
+    // public static int DeCode(int i) {
+    // return i & DST_PORT_DECODE;
+    // }
 
     @Override
     public String toString() {

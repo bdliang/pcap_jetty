@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TcpTable implements TableAction {
+public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements TableAction {
 
     /**
      * 用于记录TcpRecord的表, 两层map。
@@ -32,10 +31,9 @@ public class TcpTable implements TableAction {
 
     private static TcpTable single;
 
-    private Map<Long, Map<Integer, TcpRecord>> ipMapPort;
-
     private TcpTable() {
-        ipMapPort = new ConcurrentHashMap<Long, Map<Integer, TcpRecord>>();
+        currentTable = new ConcurrentHashMap<Long, Map<Integer, TcpRecord>>();
+        lastTable = new ConcurrentHashMap<Long, Map<Integer, TcpRecord>>();
     }
 
     public static TcpTable getInstance() {
@@ -50,7 +48,7 @@ public class TcpTable implements TableAction {
     }
 
     public int mapNum() {
-        return ipMapPort.size();
+        return currentTable.size();
     }
 
     public void searchPortMapLink(Map<Integer, TcpRecord> map, int portPair, int ipSrc, int portSrc, int ipDst, int portDst, int index,
@@ -81,28 +79,33 @@ public class TcpTable implements TableAction {
         ipPair = BasicUtils.ping2Int(ipSrc, ipDst);
         portPair = BasicUtils.ping2port(portSrc, portDst);
 
-        Map<Integer, TcpRecord> subMap = ipMapPort.get(ipPair);
+        Map<Integer, TcpRecord> subMap = currentTable.get(ipPair);
         if (null != subMap) {
             searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         } else {
             subMap = new ConcurrentHashMap<Integer, TcpRecord>();
-            ipMapPort.put(ipPair, subMap);
+            currentTable.put(ipPair, subMap);
             searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         }
     }
+
     /**
      * 从记录的tcp中选择， 源或目的是指定ip的，并且端口有http的tcp连接。
      * 
+     * @param 在双表设计的条件下
+     *            ， current表示从哪个表查找数据
+     * 
      * @return 返回符合条件的列表
      * */
-    public List<TcpRecord> selectIpWithHttp(int ip1) {
+    public List<TcpRecord> selectIpWithHttp(int ip1, boolean current) {
+
+        Map<Long, Map<Integer, TcpRecord>> table = current ? currentTable : lastTable;
         List<TcpRecord> result = new ArrayList<TcpRecord>();
-        Set<Long> set = ipMapPort.keySet();
-        for (Long l : set) {
+        for (Long l : table.keySet()) {
             int high4 = BasicUtils.getHigh4BytesFromLong(l);
             int low4 = BasicUtils.getLow4BytesFromLong(l);
             if ((ip1 == high4) || (ip1 == low4)) {
-                getHttpTcp(l, result);
+                getHttpTcp(l, result, current);
             }
         }
         return result;
@@ -113,10 +116,11 @@ public class TcpTable implements TableAction {
      * 
      * 结果列表如果为空，直接返回
      * */
-    public void getHttpTcp(long ipPair, List<TcpRecord> result) {
+    public void getHttpTcp(long ipPair, List<TcpRecord> result, boolean current) {
         if (null == result)
             return;
-        Map<Integer, TcpRecord> portMap = ipMapPort.get(ipPair);
+        Map<Long, Map<Integer, TcpRecord>> table = current ? currentTable : lastTable;
+        Map<Integer, TcpRecord> portMap = table.get(ipPair);
         if (null != portMap) {
             for (Integer portPair : portMap.keySet()) {
                 int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
@@ -132,10 +136,15 @@ public class TcpTable implements TableAction {
     @Override
     public void clean() {
         System.out.println("TcpTable clean");
-        for (Map<Integer, TcpRecord> map : ipMapPort.values()) {
+        for (Map<Integer, TcpRecord> map : lastTable.values()) {
             map.clear();
         }
-        ipMapPort.clear();
+        lastTable.clear();
+
+        for (Map<Integer, TcpRecord> map : currentTable.values()) {
+            map.clear();
+        }
+        currentTable.clear();
     }
 
     @Override
@@ -149,7 +158,7 @@ public class TcpTable implements TableAction {
             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
             bufferWritter.write(new Date(System.currentTimeMillis()).toString() + "\n");
             bufferWritter.write("#### Tcp Record ####\n");
-            for (Map.Entry<Long, Map<Integer, TcpRecord>> entry : ipMapPort.entrySet()) {
+            for (Map.Entry<Long, Map<Integer, TcpRecord>> entry : currentTable.entrySet()) {
                 String src = BasicUtils.intToIp(BasicUtils.getHigh4BytesFromLong(entry.getKey()));
                 String dst = BasicUtils.intToIp(BasicUtils.getLow4BytesFromLong(entry.getKey()));
                 bufferWritter.write(src + " " + dst + "\n");
@@ -163,4 +172,13 @@ public class TcpTable implements TableAction {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void cleanLastTable() {
+        for (Map<Integer, TcpRecord> map : lastTable.values()) {
+            map.clear();
+        }
+        lastTable.clear();
+    }
+
 }
