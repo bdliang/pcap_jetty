@@ -1,6 +1,7 @@
 package pcap.record;
 
 import net.sf.json.JsonConfig;
+import pcap.constant.BasicConstants;
 import pcap.constant.MysqlCharacterSet;
 import pcap.constant.TcpStatus;
 import pcap.core.PortMonitorMap;
@@ -74,7 +75,7 @@ public class TcpRecord {
 
         Compress = false;
         SSL = false;
-        characterSetCode = 0x08;
+        characterSetCode = BasicConstants.MYSQL_DEFAULT_CHARACTER_SET_CODE;
     }
 
     /**
@@ -199,6 +200,17 @@ public class TcpRecord {
     // public static int DeCode(int i) {
     // return i & DST_PORT_DECODE;
     // }
+
+    /**
+     * 判断mysql属性是否不是默认值
+     * */
+    public boolean mysqlNotDefault() {
+        if (!getType().equalsIgnoreCase("mysql"))
+            return false;
+        if (SSL || Compress || BasicConstants.MYSQL_DEFAULT_CHARACTER_SET_CODE != characterSetCode)
+            return true;
+        return false;
+    }
 
     @Override
     public String toString() {
