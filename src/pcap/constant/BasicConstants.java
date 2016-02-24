@@ -15,10 +15,10 @@ public class BasicConstants {
     public static final int DEFAULT_TIMEOUT = 500; // 单位是毫秒
 
     /** task类 使用的常量 */
-    public static long SECONDS_OF_A_DAY = 24 * 60 * 60L;
-    public static int DEFAULT_CLEAN_DELAY = 30; // 单位是 秒
-    public static int DEFAULT_CLEAN_INTERVAL = 30; // 单位是 秒
+    public static final long SECONDS_OF_A_DAY = 24 * 60 * 60L;
+    public static final int DEFAULT_CLEAN_DELAY = 30; // 单位是 秒
+    public static final int DEFAULT_CLEAN_INTERVAL = 30; // 单位是 秒
 
-    public static int MYSQL_DEFAULT_CHARACTER_SET_CODE = 0x08;// latin1
+    public static final int MYSQL_DEFAULT_CHARACTER_SET_CODE = 0x08;// latin1
 
 }
