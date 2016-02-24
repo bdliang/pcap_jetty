@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TcpTable implements TableAction {
@@ -97,36 +96,24 @@ public class TcpTable implements TableAction {
      * */
     public List<TcpRecord> selectIpWithHttp(int ip1) {
         List<TcpRecord> result = new ArrayList<TcpRecord>();
-        Set<Long> set = ipMapPort.keySet();
-        for (Long l : set) {
-            int high4 = BasicUtils.getHigh4BytesFromLong(l);
-            int low4 = BasicUtils.getLow4BytesFromLong(l);
+        for (Long ipPair : ipMapPort.keySet()) {
+            int high4 = BasicUtils.getHigh4BytesFromLong(ipPair);
+            int low4 = BasicUtils.getLow4BytesFromLong(ipPair);
             if ((ip1 == high4) || (ip1 == low4)) {
-                getHttpTcp(l, result);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 在指定ipPair的tcp连接中，找出端口是http监控的tcp连接，并加入到结果列表中。
-     * 
-     * 结果列表如果为空，直接返回
-     * */
-    public void getHttpTcp(long ipPair, List<TcpRecord> result) {
-        if (null == result)
-            return;
-        Map<Integer, TcpRecord> portMap = ipMapPort.get(ipPair);
-        if (null != portMap) {
-            for (Integer portPair : portMap.keySet()) {
-                int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
-                int low2 = BasicUtils.getLow2BytesFromLong(portPair);
-                List<Integer> ports = PortMonitorMap.getInstance().getAppPort("http".toLowerCase());
-                if (ports.contains(high2) || ports.contains(low2)) {
-                    result.add(portMap.get(portPair));
+                Map<Integer, TcpRecord> portMap = ipMapPort.get(ipPair);
+                for (Integer portPair : portMap.keySet()) {
+                    int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
+                    int low2 = BasicUtils.getLow2BytesFromLong(portPair);
+                    List<Integer> ports = PortMonitorMap.getInstance().getAppPort("http".toLowerCase());
+                    if (null == ports)
+                        continue;
+                    if (ports.contains(high2) || ports.contains(low2)) {
+                        result.add(portMap.get(portPair));
+                    }
                 }
             }
         }
+        return result;
     }
 
     @Override
