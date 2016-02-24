@@ -1,4 +1,4 @@
-package pcap.examples;
+package pcap.test;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
