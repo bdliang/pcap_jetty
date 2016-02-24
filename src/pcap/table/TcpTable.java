@@ -34,6 +34,7 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
     private TcpTable() {
         currentTable = new ConcurrentHashMap<Long, Map<Integer, TcpRecord>>();
         lastTable = new ConcurrentHashMap<Long, Map<Integer, TcpRecord>>();
+        workingTable = currentTable;
     }
 
     public static TcpTable getInstance() {
@@ -47,8 +48,9 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
         return single;
     }
 
-    public int mapNum() {
-        return currentTable.size();
+    public int mapNum(boolean current) {
+        setWorkingTable(current);
+        return workingTable.size();
     }
 
     public void searchPortMapLink(Map<Integer, TcpRecord> map, int portPair, int ipSrc, int portSrc, int ipDst, int portDst, int index,
@@ -79,12 +81,12 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
         ipPair = BasicUtils.ping2Int(ipSrc, ipDst);
         portPair = BasicUtils.ping2port(portSrc, portDst);
 
-        Map<Integer, TcpRecord> subMap = currentTable.get(ipPair);
+        Map<Integer, TcpRecord> subMap = workingTable.get(ipPair);
         if (null != subMap) {
             searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         } else {
             subMap = new ConcurrentHashMap<Integer, TcpRecord>();
-            currentTable.put(ipPair, subMap);
+            workingTable.put(ipPair, subMap);
             searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         }
     }
@@ -98,39 +100,27 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
      * @return 返回符合条件的列表
      * */
     public List<TcpRecord> selectIpWithHttp(int ip1, boolean current) {
-
-        Map<Long, Map<Integer, TcpRecord>> table = current ? currentTable : lastTable;
+        setWorkingTable(current);
         List<TcpRecord> result = new ArrayList<TcpRecord>();
-        for (Long l : table.keySet()) {
-            int high4 = BasicUtils.getHigh4BytesFromLong(l);
-            int low4 = BasicUtils.getLow4BytesFromLong(l);
+        for (Long ipPair : workingTable.keySet()) {
+            int high4 = BasicUtils.getHigh4BytesFromLong(ipPair);
+            int low4 = BasicUtils.getLow4BytesFromLong(ipPair);
             if ((ip1 == high4) || (ip1 == low4)) {
-                getHttpTcp(l, result, current);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 在指定ipPair的tcp连接中，找出端口是http监控的tcp连接，并加入到结果列表中。
-     * 
-     * 结果列表如果为空，直接返回
-     * */
-    public void getHttpTcp(long ipPair, List<TcpRecord> result, boolean current) {
-        if (null == result)
-            return;
-        Map<Long, Map<Integer, TcpRecord>> table = current ? currentTable : lastTable;
-        Map<Integer, TcpRecord> portMap = table.get(ipPair);
-        if (null != portMap) {
-            for (Integer portPair : portMap.keySet()) {
-                int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
-                int low2 = BasicUtils.getLow2BytesFromLong(portPair);
-                List<Integer> ports = PortMonitorMap.getInstance().getAppPort("http".toLowerCase());
-                if (ports.contains(high2) || ports.contains(low2)) {
-                    result.add(portMap.get(portPair));
+                // getHttpTcp(l, result, current);
+                Map<Integer, TcpRecord> portMap = workingTable.get(ipPair);
+                for (Integer portPair : portMap.keySet()) {
+                    int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
+                    int low2 = BasicUtils.getLow2BytesFromLong(portPair);
+                    List<Integer> ports = PortMonitorMap.getInstance().getAppPort("http".toLowerCase());
+                    if (null == ports)
+                        continue;
+                    if (ports.contains(high2) || ports.contains(low2)) {
+                        result.add(portMap.get(portPair));
+                    }
                 }
             }
         }
+        return result;
     }
 
     @Override
@@ -150,6 +140,7 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
     @Override
     public void dumpToFile() {
         File file = new File(TableAction.filePath);
+        setWorkingTable(true);
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -158,7 +149,7 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
             bufferWritter.write(new Date(System.currentTimeMillis()).toString() + "\n");
             bufferWritter.write("#### Tcp Record ####\n");
-            for (Map.Entry<Long, Map<Integer, TcpRecord>> entry : currentTable.entrySet()) {
+            for (Map.Entry<Long, Map<Integer, TcpRecord>> entry : workingTable.entrySet()) {
                 String src = BasicUtils.intToIp(BasicUtils.getHigh4BytesFromLong(entry.getKey()));
                 String dst = BasicUtils.intToIp(BasicUtils.getLow4BytesFromLong(entry.getKey()));
                 bufferWritter.write(src + " " + dst + "\n");

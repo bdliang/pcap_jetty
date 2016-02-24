@@ -9,9 +9,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
-public class MysqlServerTable implements TableAction {
+public class MysqlServerTable extends Table<Long, MysqlServerRecord> implements TableAction {
 
     /**
      * 用来记录mysql的表
@@ -24,10 +23,10 @@ public class MysqlServerTable implements TableAction {
 
     private static MysqlServerTable single;
 
-    private Map<Long, MysqlServerRecord> mysqlServerMap;
-
     private MysqlServerTable() {
-        mysqlServerMap = new HashMap<Long, MysqlServerRecord>();
+        currentTable = new HashMap<Long, MysqlServerRecord>();
+        lastTable = new HashMap<Long, MysqlServerRecord>();
+        workingTable = currentTable;
     }
 
     /* 单例 */
@@ -47,17 +46,17 @@ public class MysqlServerTable implements TableAction {
      * 
      * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
      * */
-    public MysqlServerRecord getMysqlServerRecord(int ip, int port) {
+    public MysqlServerRecord getMysqlServerRecord(int ip, int port, boolean current) {
         MysqlServerRecord record = null;
         if (!BasicUtils.isPortValid(port))
             return null;
-
+        setWorkingTable(current);
         long key = BasicUtils.ping2Int(ip, port);
-        record = mysqlServerMap.get(key);
+        record = workingTable.get(key);
 
         if (null == record) {
             record = new MysqlServerRecord(ip, port);
-            mysqlServerMap.put(key, record);
+            workingTable.put(key, record);
         }
         return record;
     }
@@ -66,11 +65,12 @@ public class MysqlServerTable implements TableAction {
     /**
      * 获得所有item属性的个数
      * */
-    public int getCount(MysqlItems item) {
+    public int getCount(MysqlItems item, boolean current) {
         if (null == item || MysqlItems.OTHER == item)
             return 0;
+        setWorkingTable(current);
         int cnt = 0;
-        for (MysqlServerRecord record : mysqlServerMap.values()) {
+        for (MysqlServerRecord record : workingTable.values()) {
             cnt += record.getItemCount(item);
         }
         return cnt;
@@ -79,10 +79,11 @@ public class MysqlServerTable implements TableAction {
     /**
      * 返回所有mysql增删改查请求的平均响应时间
      * */
-    public double getAvgTime() {
+    public double getAvgTime(boolean current) {
+        setWorkingTable(current);
         long time = 0;
         long cnt = 0;
-        for (MysqlServerRecord record : mysqlServerMap.values()) {
+        for (MysqlServerRecord record : workingTable.values()) {
             time += record.getTotalTime();
             cnt += record.getTotalCount();
         }
@@ -92,26 +93,28 @@ public class MysqlServerTable implements TableAction {
     }
 
     /* 根据ip查找 */
-    public int getCountByIp(MysqlItems item, int ip) {
+    public int getCountByIp(MysqlItems item, int ip, boolean current) {
         if (null == item || MysqlItems.OTHER == item)
             return 0;
+        setWorkingTable(current);
         int cnt = 0;
-        for (Long ipPort : mysqlServerMap.keySet()) {
+        for (Long ipPort : workingTable.keySet()) {
             if (ip != BasicUtils.getHigh4BytesFromLong(ipPort))
                 continue;
-            MysqlServerRecord record = mysqlServerMap.get(ipPort);
+            MysqlServerRecord record = workingTable.get(ipPort);
             cnt += record.getItemCount(item);
         }
         return cnt;
     }
 
-    public double getAvgTimeByIp(int ip) {
+    public double getAvgTimeByIp(int ip, boolean current) {
+        setWorkingTable(current);
         long time = 0;
         long cnt = 0;
-        for (Long ipPort : mysqlServerMap.keySet()) {
+        for (Long ipPort : workingTable.keySet()) {
             if (ip != BasicUtils.getHigh4BytesFromLong(ipPort))
                 continue;
-            MysqlServerRecord record = mysqlServerMap.get(ipPort);
+            MysqlServerRecord record = workingTable.get(ipPort);
             time += record.getTotalTime();
             cnt += record.getTotalCount();
         }
@@ -123,12 +126,14 @@ public class MysqlServerTable implements TableAction {
     @Override
     public void clean() {
         System.out.println("MysqlServerTable clean");
-        mysqlServerMap.clear();
+        lastTable.clear();
+        currentTable.clear();
     }
 
     @Override
     public void dumpToFile() {
         File file = new File(TableAction.filePath);
+        setWorkingTable(true);
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -136,11 +141,11 @@ public class MysqlServerTable implements TableAction {
             FileWriter fileWritter = new FileWriter(file.getName(), true);
             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
             bufferWritter.write("#### Mysql Server Record ####\n");
-            for (Long ipPort : mysqlServerMap.keySet()) {
+            for (Long ipPort : workingTable.keySet()) {
                 String ip = BasicUtils.intToIp(BasicUtils.getHigh4BytesFromLong(ipPort));
                 int port = BasicUtils.getLow4BytesFromLong(ipPort);
                 bufferWritter.write(ip + "." + port + "\n");
-                MysqlServerRecord record = mysqlServerMap.get(ipPort);
+                MysqlServerRecord record = workingTable.get(ipPort);
                 bufferWritter.write("\t" + record.toString() + "\n");
             }
             bufferWritter.write("\n");
@@ -149,6 +154,11 @@ public class MysqlServerTable implements TableAction {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void cleanLastTable() {
+        lastTable.clear();
     }
 
 }
