@@ -86,9 +86,7 @@ public class MysqlServerTable implements TableAction {
             time += record.getTotalTime();
             cnt += record.getTotalCount();
         }
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     /* 根据ip查找 */
@@ -115,9 +113,31 @@ public class MysqlServerTable implements TableAction {
             time += record.getTotalTime();
             cnt += record.getTotalCount();
         }
-        if (cnt > 0)
-            return (time * 1.0) / cnt;
-        return 0.0;
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
+    }
+
+    /* 根据ip, port查找 */
+    public int getCountByIp(MysqlItems item, int ip, int port) {
+        if (null == item || MysqlItems.OTHER == item || !BasicUtils.isPortValid(port))
+            return 0;
+        int cnt = 0;
+        MysqlServerRecord record = mysqlServerMap.get(BasicUtils.ping2Int(ip, port));
+        if (null != record)
+            cnt = record.getItemCount(item);
+        return cnt;
+    }
+
+    public double getAvgTimeByIp(int ip, int port) {
+        if (!BasicUtils.isPortValid(port))
+            return 0.0;
+        long time = 0;
+        long cnt = 0;
+        MysqlServerRecord record = mysqlServerMap.get(BasicUtils.ping2Int(ip, port));
+        if (null != record) {
+            time = record.getTotalTime();
+            cnt = record.getTotalCount();
+        }
+        return (cnt > 0) ? (time * 1.0) / cnt : 0.0;
     }
 
     @Override
@@ -148,7 +168,5 @@ public class MysqlServerTable implements TableAction {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 }
