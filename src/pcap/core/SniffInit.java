@@ -1,6 +1,6 @@
 package pcap.core;
 
-public class ProgramInit {
+public class SniffInit {
 
     public static void init() {
         PortMonitorMap.getInstance().loadPortsMapFromFile();
