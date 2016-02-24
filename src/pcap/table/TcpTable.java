@@ -76,6 +76,7 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
         if (null == tcp || timeStamp <= 0)
             return;
 
+        setWorkingTable(true);
         long ipPair;
         int portPair;
         ipPair = BasicUtils.ping2Int(ipSrc, ipDst);
@@ -106,7 +107,6 @@ public class TcpTable extends Table<Long, Map<Integer, TcpRecord>> implements Ta
             int high4 = BasicUtils.getHigh4BytesFromLong(ipPair);
             int low4 = BasicUtils.getLow4BytesFromLong(ipPair);
             if ((ip1 == high4) || (ip1 == low4)) {
-                // getHttpTcp(l, result, current);
                 Map<Integer, TcpRecord> portMap = workingTable.get(ipPair);
                 for (Integer portPair : portMap.keySet()) {
                     int high2 = BasicUtils.getHigh2BytesFromLong(portPair);
