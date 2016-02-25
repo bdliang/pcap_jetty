@@ -21,4 +21,6 @@ public class BasicConstants {
 
     public static final int MYSQL_DEFAULT_CHARACTER_SET_CODE = 0x08;// latin1
 
+    public static final String NULL_JSON_RETURN = "{}";
+
 }

@@ -176,4 +176,25 @@ public class BasicUtils {
             return -1;
         }
     }
+
+    /**
+     * 检验字符串是否是ip地址
+     * */
+    public static boolean isStringIp(String ipString) {
+        if (isStringBlank(ipString))
+            return false;
+        String[] tmp = ipString.split(".");
+        if (3 != tmp.length)
+            return false;
+        for (String str : tmp) {
+            try {
+                int x = Integer.parseInt(str);
+                if (x < 0 || x > 255)
+                    return false;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
