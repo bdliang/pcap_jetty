@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 public class PcapTcpLinkServlet extends HttpServlet {
 
     /**
-     * ip filter访问这个类
+     * 拓扑图ip过滤， 访问这个类
      * */
     /**
      * serialVersionUID
