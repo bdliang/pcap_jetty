@@ -1,6 +1,5 @@
 package org.jetty.demo;
 
-import pcap.constant.BasicConstants;
 import pcap.table.TcpTable;
 
 import java.io.IOException;
@@ -32,7 +31,6 @@ public class PcapTcpLinkServlet extends HttpServlet {
             // System.out.println("\n" + result);
             resp.getWriter().write(result);
         } catch (Exception e) {
-            resp.getWriter().write(BasicConstants.NULL_JSON_RETURN);
             e.printStackTrace();
         } finally {
             resp.getWriter().close();

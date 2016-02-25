@@ -16,7 +16,7 @@ import java.util.Set;
 public class BasicTest {
 
     public static void main(String[] args) {
-        test11();
+        test12();
     }
 
     public static void test1() {
@@ -248,11 +248,20 @@ public class BasicTest {
     }
 
     public static void test11() {
-
         for (MysqlItems item : MysqlItems.values()) {
             System.out.println(item.name());
         }
-
     }
 
+    public static void test12() {
+        String str = "1a";
+        try {
+            int tmp = Integer.parseInt(str);
+            System.out.println(tmp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("hh");
+    }
 }
