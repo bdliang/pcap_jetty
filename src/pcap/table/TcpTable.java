@@ -1,5 +1,7 @@
 package pcap.table;
 
+import net.sf.json.JSONArray;
+
 import org.jnetpcap.protocol.tcpip.Tcp;
 
 import pcap.core.PortMonitorMap;
@@ -89,12 +91,13 @@ public class TcpTable implements TableAction {
             searchPortMapLink(subMap, portPair, ipSrc, portSrc, ipDst, portDst, index, timeStamp, tcp);
         }
     }
+
     /**
      * 从记录的tcp中选择， 源或目的是指定ip的，并且端口有http的tcp连接。
      * 
-     * @return 返回符合条件的列表
+     * @return 返回符合条件的列表。当没有符合条件的记录时，返回空List，不返回NULL。
      * */
-    public List<TcpRecord> selectIpWithHttp(int ip1) {
+    private List<TcpRecord> selectIpWithHttp0(int ip1) {
         List<TcpRecord> result = new ArrayList<TcpRecord>();
         for (Long ipPair : ipMapPort.keySet()) {
             int high4 = BasicUtils.getHigh4BytesFromLong(ipPair);
@@ -114,6 +117,21 @@ public class TcpTable implements TableAction {
             }
         }
         return result;
+    }
+
+    /**
+     * 从记录的tcp中选择， 源或目的是指定ip的，并且端口有http的tcp连接。
+     * 
+     * @return 返回对应List的JSON字符串
+     * */
+    public String selectIpWithHttp(String ipString) {
+        List<TcpRecord> result = null;
+        if (!BasicUtils.isStringIp(ipString)) {
+            result = new ArrayList<TcpRecord>(0);
+        } else {
+            result = selectIpWithHttp0(BasicUtils.ipStringToInt(ipString));
+        }
+        return JSONArray.fromObject(result, TcpRecord.config).toString();
     }
 
     @Override
