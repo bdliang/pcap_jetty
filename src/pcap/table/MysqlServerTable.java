@@ -1,15 +1,15 @@
 package pcap.table;
 
-import pcap.record.MysqlServerRecord;
-import pcap.record.MysqlServerRecord.MysqlItems;
-import pcap.utils.BasicUtils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import pcap.record.MysqlServerRecord;
+import pcap.record.MysqlServerRecord.MysqlItems;
+import pcap.utils.BasicUtils;
 
 public class MysqlServerTable implements TableAction {
 
@@ -20,7 +20,7 @@ public class MysqlServerTable implements TableAction {
      * map->MysqlServerRecord
      * 
      * 提供整体的和某个ip或某对ip/port或某个mysql服务器的相关统计和响应时间
-     * */
+     */
 
     private static MysqlServerTable single;
 
@@ -33,7 +33,7 @@ public class MysqlServerTable implements TableAction {
     /* 单例 */
     public static MysqlServerTable getInstance() {
         if (null == single) {
-            synchronized (UrlTable.class) {
+            synchronized (MysqlServerTable.class) {
                 if (null == single) {
                     single = new MysqlServerTable();
                 }
@@ -46,7 +46,7 @@ public class MysqlServerTable implements TableAction {
      * 在MysqlServerTable中， 查找 ip, port对应的记录
      * 
      * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
-     * */
+     */
     public MysqlServerRecord getMysqlServerRecord(int ip, int port) {
         MysqlServerRecord record = null;
         if (!BasicUtils.isPortValid(port))
@@ -65,7 +65,7 @@ public class MysqlServerTable implements TableAction {
     /* 整体查找 */
     /**
      * 获得所有item属性的个数
-     * */
+     */
     public int getCount(MysqlItems item) {
         if (null == item || MysqlItems.OTHER == item)
             return 0;
@@ -78,7 +78,7 @@ public class MysqlServerTable implements TableAction {
 
     /**
      * 返回所有mysql增删改查请求的平均响应时间
-     * */
+     */
     public double getAvgTime() {
         long time = 0;
         long cnt = 0;
