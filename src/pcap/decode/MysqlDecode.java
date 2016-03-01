@@ -2,6 +2,8 @@ package pcap.decode;
 
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+import java.nio.charset.Charset;
+
 import pcap.constant.MysqlCapabilityFlag;
 import pcap.constant.MysqlClientRequestType;
 import pcap.constant.TcpStatus;
@@ -13,8 +15,6 @@ import pcap.utils.BasicUtils;
 import pcap.utils.CompressUtils;
 import pcap.utils.DecodeUtils;
 
-import java.nio.charset.Charset;
-
 public class MysqlDecode {
 
     private static final int NOT_COMPRESS_HEADER_LENGTH = 4;
@@ -25,7 +25,7 @@ public class MysqlDecode {
             return;
 
         byte[] payload = tcp.getPayload();
-        if (payload.length < 5)
+        if (payload.length <= NOT_COMPRESS_HEADER_LENGTH)
             return;
 
         // / 如果是加密的, 不解析
@@ -83,7 +83,7 @@ public class MysqlDecode {
      * @param compress
      *            用来表明该mysql包是否是压缩后的包
      * 
-     * */
+     */
     private static void decode0(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp, boolean clientToServer,
             boolean compress) {
 
@@ -108,7 +108,7 @@ public class MysqlDecode {
          * 
          * 如果需要，参考 MysqlDecode.decode();
          * 
-         * */
+         */
 
         int seq = BasicUtils.u(payload[offset + 3]);
         int requestType = BasicUtils.u(payload[offset + headerLength]);
@@ -181,7 +181,7 @@ public class MysqlDecode {
      *            包括mysql包包头的offset
      * @param mysqlLength
      *            从mysql包包头中解析出该包的长度，即除去包头的长度
-     * */
+     */
     private static void decodeHandShakeC2S(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp) {
         if (null == payload || null == record || offset < 0 || mysqlLength <= 0 || ((offset + mysqlLength) > payload.length))
             return;

@@ -1,10 +1,5 @@
 package pcap.test;
 
-import pcap.record.MysqlServerRecord.MysqlItems;
-import pcap.utils.BasicUtils;
-import pcap.utils.CompressUtils;
-import pcap.utils.DecodeUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -13,10 +8,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import pcap.constant.MongDBOpCode;
+import pcap.record.MysqlServerRecord.MysqlItems;
+import pcap.utils.BasicUtils;
+import pcap.utils.CompressUtils;
+import pcap.utils.DecodeUtils;
+
 public class BasicTest {
 
     public static void main(String[] args) {
-        test12();
+        test14();
     }
 
     public static void test1() {
@@ -98,7 +99,7 @@ public class BasicTest {
 
     /**
      * 测试u1()正确性
-     * */
+     */
     public static void test5() {
         int cnt = 0;
         byte i = 0;
@@ -181,7 +182,8 @@ public class BasicTest {
 
     public static void test10() {
         // String str =
-        // "78 9c d3 63 60 60 60 2e  4e cd 49 4d 2e 51 50 32 30 34 32 36 31 35 33 b7  b0 c4 cd 52 02 00 0c d1 0a 6c ";
+        // "78 9c d3 63 60 60 60 2e 4e cd 49 4d 2e 51 50 32 30 34 32 36 31 35 33
+        // b7 b0 c4 cd 52 02 00 0c d1 0a 6c ";
         // byte[] data = charNumToBytes(str);
         // printBytes(data);
         // data = CompressUtils.decompress(data, 0, data.length, 45);
@@ -263,5 +265,53 @@ public class BasicTest {
         }
 
         System.out.println("hh");
+    }
+
+    public static void test13() {
+        byte[] payload = new byte[20];
+        int i = 0;
+        for (i = 0; i < payload.length; ++i)
+            payload[i] = (byte) 0xff;
+        for (i = 0; i < payload.length; ++i) {
+            System.out.print((payload[i]) + " ");
+        }
+        System.out.println();
+
+        int tmp = (int) DecodeUtils.litterEndianToLong(payload, 0, 4);
+        System.out.println(tmp);
+    }
+
+    public static void test14() {
+        int tmp, i = 0;
+        tmp = MongDBOpCode.OP_DELETE;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_GET_MORE;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_INSERT;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_KILL_CURSORS;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_MSG;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_QUERY;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_REPLY;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.OP_UPDATE;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = MongDBOpCode.RESERVED;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
+        tmp = 51;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+
     }
 }

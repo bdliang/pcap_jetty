@@ -34,4 +34,26 @@ public class MongDBOpCode {
     /** Notify database that the client has finished with the cursor. */
     public static final int OP_KILL_CURSORS = 2007;
 
+    /**
+     * 判断opCode是否是MongDBOpCode
+     * 
+     * 目前只需要 OP_REPLY， OP_UPDATE， OP_INSERT， OP_QUERY， OP_GET_MORE， OP_DELETE，
+     * OP_KILL_CURSORS
+     */
+    public static boolean isOpCodeValid(int opCode) {
+        switch (opCode) {
+            case OP_REPLY :
+                // case OP_MSG :
+            case OP_UPDATE :
+            case OP_INSERT :
+                // case RESERVED :
+            case OP_QUERY :
+            case OP_GET_MORE :
+            case OP_DELETE :
+            case OP_KILL_CURSORS :
+                return true;
+            default :
+                return false;
+        }
+    }
 }

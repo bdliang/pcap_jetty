@@ -2,7 +2,9 @@ package pcap.decode;
 
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+import pcap.constant.MongDBOpCode;
 import pcap.record.TcpRecord;
+import pcap.utils.DecodeUtils;
 
 public class MongoDBDecode {
 
@@ -10,6 +12,47 @@ public class MongoDBDecode {
 
     public static void decode(Tcp tcp, TcpRecord record, long timeStamp) {
         /* 根据ip, port查找 */
+        if (null == tcp || null == record)
+            return;
+
+        byte[] payload = tcp.getPayload();
+        if (payload.length <= HEADER_LENGTH)
+            return;
+
+        // 判断mongodb连接方向, true表示从client -> server
+        boolean clientToServer = (record.typePort() == tcp.destination());
+
+        int currentOffset = 0;
+        int nextOffset = 0;
+        int currentMongoDBLength = 0;
+
+        for (currentOffset = 0; currentOffset + HEADER_LENGTH < payload.length;) {
+            currentMongoDBLength = (int) DecodeUtils.litterEndianToLong(payload, 0, 4);
+            if (currentMongoDBLength <= HEADER_LENGTH)
+                return;
+            nextOffset = currentOffset + currentMongoDBLength;
+            decode0(payload, record, timeStamp, currentOffset, currentMongoDBLength, clientToServer);
+            currentOffset = nextOffset;
+        }
+    }
+
+    /**
+     * @param off
+     *            起始位置
+     * @param length
+     *            包括mongdb包头的packetLength
+     * @param clientToServer
+     *            用来表明该mongo包的方向
+     */
+    public static void decode0(byte[] payload, TcpRecord record, long timeStamp, int off, int length, boolean clientToServer) {
+
+        int opCode = (int) DecodeUtils.litterEndianToLong(payload, off + 12, 4);
+        if (!MongDBOpCode.isOpCodeValid(opCode))
+            return;
+
+        int requestId = (int) DecodeUtils.litterEndianToLong(payload, off + 4, 4);
+        int responseTo = (int) DecodeUtils.litterEndianToLong(payload, off + 8, 4);
+
     }
 
 }
