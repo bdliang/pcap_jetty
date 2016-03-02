@@ -1,13 +1,17 @@
 package pcap.test;
 
+import org.bson.BSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import pcap.constant.MongDBCommand;
 import pcap.constant.MongDBOpCode;
 import pcap.record.MysqlServerRecord.MysqlItems;
 import pcap.utils.BasicUtils;
@@ -17,7 +21,7 @@ import pcap.utils.DecodeUtils;
 public class BasicTest {
 
     public static void main(String[] args) {
-        test14();
+        test17();
     }
 
     public static void test1() {
@@ -122,7 +126,8 @@ public class BasicTest {
 
     public static void test7() {
         Set<String> charsetNames = Charset.availableCharsets().keySet();
-        System.out.println("---The Number of jdk charset is " + charsetNames.size() + "---");
+        System.out.println("---The Number of jdk charset is "
+                + charsetNames.size() + "---");
 
         Iterator<String> it = charsetNames.iterator();
 
@@ -233,7 +238,8 @@ public class BasicTest {
             System.out.println("wrong arguments in BasicTest.printBytes()");
             return;
         }
-        System.out.println("length : 0x " + Integer.toHexString(length) + "  = " + length);
+        System.out.println(
+                "length : 0x " + Integer.toHexString(length) + "  = " + length);
         int cnt = 0;
         final int eightBytes = 8;
         final int hexBytes = 16;
@@ -285,33 +291,50 @@ public class BasicTest {
         int tmp, i = 0;
         tmp = MongDBOpCode.OP_DELETE;
         System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_GET_MORE;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_INSERT;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_KILL_CURSORS;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_MSG;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_QUERY;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_REPLY;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.OP_UPDATE;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = MongDBOpCode.RESERVED;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
-        tmp = 51;
-        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
-
     }
+
+    public static void test15() {
+        String str = "awesome";
+        for (char c : str.toCharArray()) {
+            System.out.print(Integer.toHexString(c) + " ");
+        }
+        System.out.println();
+    }
+
+    /**
+     * bson 测试
+     */
+    public static void test16() {
+        String str = "16 00 00 00 02 68 65 6c 6c 6f 00 06 00 00 00 77 6f 72 6c 64 00 00 ";
+        byte[] data = charNumToBytes(str);
+        BSONObject tmp = null;
+        tmp = DecodeUtils.bytesToBson(data, 0, data.length);
+        System.out.println(tmp.toString());
+        String str1 = "31 00 00 00 04 42 53 4f 4e 00 26 00 00 00 02 30 00 08 00 00 00 61 77 65 73 6f 6d 65 00 01 31 00 33 33 33 33 33 33 14 40 10 32 00 c2 07 00 00 00 00 ";
+        data = charNumToBytes(str1);
+        tmp = DecodeUtils.bytesToBson(data, 0, data.length);
+        System.out.println(tmp.toString());
+
+        for (String strTmp : tmp.keySet()) {
+            System.out.println(strTmp + " : " + tmp.get(strTmp));
+        }
+    }
+
+    public static void test17() {
+        // for (String str : MongDBCommand.commands) {
+        // System.out.println(str);
+        // }
+        // System.out.println("####################\n");
+        // Arrays.sort(MongDBCommand.commands);
+        // for (String str : MongDBCommand.commands) {
+        // System.out.println(str);
+        // }
+
+        String str = MongDBCommand.getMongDBCommand(0);
+        System.out.println(str);
+        Arrays.sort(MongDBCommand.commands);
+        str = MongDBCommand.getMongDBCommand(0);
+        System.out.println(str);
+    }
+
 }

@@ -1,10 +1,14 @@
 package pcap.utils;
 
-import pcap.decode.MysqlLengthEncodedInteger;
+import org.bson.BSONObject;
+import org.bson.BasicBSONDecoder;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+
+import pcap.decode.MysqlLengthEncodedInteger;
 
 public class DecodeUtils {
 
@@ -79,7 +83,7 @@ public class DecodeUtils {
      * 通过characterSetCode 返回响应的字符集对象，如果出错则返回默认对应的字符集.
      * 
      * 如果考虑mysql, 默认字符集是 "ISO-8859-1"对应的字符集(latin1)。
-     * */
+     */
     public static Charset charSet(int characterSetCode) {
 
         // 省略将对应characterSetCode转换为对应字符串
@@ -108,21 +112,52 @@ public class DecodeUtils {
      * mysql length-coeded integer的解码
      * 
      * 将来可能会用到
-     * */
-    public static MysqlLengthEncodedInteger mysqlLengthCodedIntDecode(byte[] data, int offset) {
+     */
+    public static MysqlLengthEncodedInteger mysqlLengthCodedIntDecode(
+            byte[] data, int offset) {
         if (null == data || data.length < offset + 1)
             return new MysqlLengthEncodedInteger(0L, 0, true);
         int first = BasicUtils.u(data[offset]);
         switch (first) {
             case 0xfc :
-                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 2), 2, false);
+                return new MysqlLengthEncodedInteger(
+                        litterEndianToLong(data, offset + 1, 2), 2, false);
             case 0xfd :
-                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 3), 3, false);
+                return new MysqlLengthEncodedInteger(
+                        litterEndianToLong(data, offset + 1, 3), 3, false);
             case 0xfe :
-                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 8), 8, false);
+                return new MysqlLengthEncodedInteger(
+                        litterEndianToLong(data, offset + 1, 8), 8, false);
         }
         if (first >= 0xfb)
             return new MysqlLengthEncodedInteger(0L, 0, true);;
         return new MysqlLengthEncodedInteger(first, 1, false);
     }
+
+    /**
+     * 将字节码转换成Bson对象 ，用于MongoDB的解析。
+     * 
+     * @param data
+     *            待解析的数据
+     * @param off
+     *            起始位置
+     * @param len
+     *            长度
+     */
+    public static BSONObject bytesToBson(byte[] data, int off, int len) {
+        if (null == data || data.length < 1 || off < 0 || len < 0
+                || off + len > data.length)
+            return null;
+        BSONObject bson = null;
+        ByteArrayInputStream in = new ByteArrayInputStream(data, off, len);
+        BasicBSONDecoder tmp = new BasicBSONDecoder();
+        try {
+            bson = tmp.readObject(in);
+            return bson;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            return null;
+        }
+    }
+
 }
