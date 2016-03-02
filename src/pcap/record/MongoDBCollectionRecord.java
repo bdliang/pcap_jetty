@@ -6,7 +6,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
-public class MongoDBServerRecord {
+public class MongoDBCollectionRecord {
 
     public static final JsonConfig config = new JsonConfig();
     static {
@@ -19,14 +19,16 @@ public class MongoDBServerRecord {
     private long totalTime;
     private long totalCount;
     private Map<MongoDBItems, Integer> counters;
+    private String tableName;
 
-    public MongoDBServerRecord(int ip, int port) {
+    public MongoDBCollectionRecord(int ip, int port) {
         super();
         this.ip = ip;
         this.port = port;
         this.counters = new HashMap<MongoDBItems, Integer>();;
         this.totalTime = 0;
         this.totalCount = 0;
+        this.tableName = "";
     }
 
     public void addTimeRecord(long time) {
@@ -86,10 +88,20 @@ public class MongoDBServerRecord {
     public Map<MongoDBItems, Integer> getCounters() {
         return counters;
     }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
     /** getter & setter */
 
     public enum MongoDBItems {
-        FIND("FIND"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), UPSERT("UPSERT"), ERROR("ERROR"), OTHER,;
+        FIND("FIND"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE(
+                "DELETE"), UPSERT(
+                        "UPSERT"), ISMASTER("ISMASTER"), ERROR("ERROR"), OTHER,;
 
         private String desc;
 
@@ -113,7 +125,6 @@ public class MongoDBServerRecord {
                     return t;
                 }
             }
-
             return OTHER;
         }
     }

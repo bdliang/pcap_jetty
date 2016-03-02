@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
+import pcap.constant.MongDBCommand;
 import pcap.decode.MysqlLengthEncodedInteger;
 
 public class DecodeUtils {
@@ -158,6 +159,20 @@ public class DecodeUtils {
             // e.printStackTrace();
             return null;
         }
+    }
+
+    public static boolean isMongoDBCommand(String key, String value) {
+        boolean result = false;
+        for (String command : MongDBCommand.commands) {
+            if (command.equalsIgnoreCase(key)) {
+                result = true;
+                break;
+            }
+        }
+        if (result && !BasicUtils.isStringBlank(value)) {
+            return true;
+        }
+        return false;
     }
 
 }
