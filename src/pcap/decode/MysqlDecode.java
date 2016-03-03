@@ -45,7 +45,7 @@ public class MysqlDecode {
 
         // 处理多个mysql包在一个tcp， 也适用于1:1的关系。
         for (currentOffset = 0; currentOffset < totalLength - 4;) {
-            currentMysqlLength = (int) DecodeUtils.litterEndianToLong(payload, currentOffset, 3);
+            currentMysqlLength = DecodeUtils.litterEndianToInt(payload, currentOffset, 3);
             nextOffset = currentOffset + headerLength + currentMysqlLength;
             // 如果长度不符合逻辑
             if (nextOffset > totalLength)
@@ -92,14 +92,14 @@ public class MysqlDecode {
         if (null == payload || null == record || offset < 0 || mysqlLength <= 0 || (offset + headerLength + mysqlLength) > payload.length)
             return;
 
-        long unCompressedLength = 0L;
+        int unCompressedLength = 0;
         if (compress) {
-            if (0L != (unCompressedLength = DecodeUtils.litterEndianToLong(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 3))) {
+            if (0L != (unCompressedLength = DecodeUtils.litterEndianToInt(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 3))) {
                 payload = CompressUtils.zlibDecompress(payload, offset + COMPRESSED_HEADER_LENGTH, mysqlLength);
                 if (null == payload || payload.length != unCompressedLength)
                     return;
                 offset = 0;
-                mysqlLength = (int) DecodeUtils.litterEndianToLong(payload, offset, 3);
+                mysqlLength = DecodeUtils.litterEndianToInt(payload, offset, 3);
             }
         }
 
@@ -189,7 +189,7 @@ public class MysqlDecode {
             return;
         record.setStatus(TcpStatus.MYSQL_HANDSHAKE_RESPONSE);
         boolean mysqlProtocol41 = false;
-        long capabilityFlags = DecodeUtils.litterEndianToLong(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 2);
+        int capabilityFlags = DecodeUtils.litterEndianToInt(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 2);
         if (0L != (MysqlCapabilityFlag.CLIENT_PROTOCOL_41 & capabilityFlags)) {
             mysqlProtocol41 = true;
         }

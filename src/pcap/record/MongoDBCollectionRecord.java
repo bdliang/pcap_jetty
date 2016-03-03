@@ -21,17 +21,30 @@ public class MongoDBCollectionRecord {
     private Map<MongoDBItems, Integer> counters;
     private String tableName;
 
+    @Deprecated
     public MongoDBCollectionRecord(int ip, int port) {
         super();
         this.ip = ip;
         this.port = port;
-        this.counters = new HashMap<MongoDBItems, Integer>();;
+        this.counters = new HashMap<MongoDBItems, Integer>();
         this.totalTime = 0;
         this.totalCount = 0;
         this.tableName = "";
     }
 
+    public MongoDBCollectionRecord(int ip, int port, String name) {
+        super();
+        this.ip = ip;
+        this.port = port;
+        this.counters = new HashMap<MongoDBItems, Integer>();
+        this.totalTime = 0;
+        this.totalCount = 0;
+        this.tableName = name;
+    }
+
     public void addTimeRecord(long time) {
+        if (time <= 0)
+            return;
         this.totalTime += time;
         ++this.totalCount;
     }
@@ -99,9 +112,8 @@ public class MongoDBCollectionRecord {
     /** getter & setter */
 
     public enum MongoDBItems {
-        FIND("FIND"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE(
-                "DELETE"), UPSERT(
-                        "UPSERT"), ISMASTER("ISMASTER"), ERROR("ERROR"), OTHER,;
+        FIND("FIND"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), GETMORE("GETMORE"), ISMASTER("ISMASTER"), ERROR(
+                "ERROR"), KILL_CURSORS("KILL_CURSORS"), OTHER,;
 
         private String desc;
 

@@ -1,15 +1,15 @@
 package pcap.record;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 
 /**
  * 用于记录Mysql的统计信息， 以mysql服务器为单位
  * 
- * */
+ */
 
 public class MysqlServerRecord {
 
@@ -36,6 +36,8 @@ public class MysqlServerRecord {
     }
 
     public void addTimeRecord(long time) {
+        if (time <= 0)
+            return;
         this.totalTime += time;
         ++this.totalCount;
     }
@@ -95,7 +97,8 @@ public class MysqlServerRecord {
     /** getter & setter */
 
     public enum MysqlItems {
-        SELECT("SELECT"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), COMMIT("COMMIT"), ROLLBACK("ROLLBACK"), ERROR("ERROR"), OTHER, ;
+        SELECT("SELECT"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), COMMIT("COMMIT"), ROLLBACK("ROLLBACK"), ERROR(
+                "ERROR"), OTHER,;
 
         private String desc;
 

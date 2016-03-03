@@ -1,10 +1,10 @@
 package pcap.record;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 
 public class UrlRecord {
 
@@ -54,6 +54,8 @@ public class UrlRecord {
     }
 
     public void addTimeRecord(long time) {
+        if (time <= 0)
+            return;
         this.totalTime += time;
         ++this.totalCount;
     }
@@ -124,7 +126,7 @@ public class UrlRecord {
 
     public enum HttpItems {
         GET("GET"), POST("POST"), HEAD("HEAD"), PUT("PUT"), DELETE("DELETE"), OPTIONS("OPTIONS"), TRACE("TRACE"), CONNECT("CONNECT"), XX2(
-                "200"), _302("302"), _304("304"), _403("403"), _404("404"), _500("500"), _501("501"), _503("503"), OTHER, ;
+                "200"), _302("302"), _304("304"), _403("403"), _404("404"), _500("500"), _501("501"), _503("503"), OTHER,;
 
         private String desc;
 

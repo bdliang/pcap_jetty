@@ -59,6 +59,7 @@ public class DecodeUtils {
         }
         return uint32;
     }
+
     /**
      * 小端顺序存储的内容转换为相应的数值，最多8bytes。
      * 
@@ -72,6 +73,25 @@ public class DecodeUtils {
         if (len > 8)
             len = 8;
         long result = 0;
+        for (int i = len - 1; i >= 0; i--) {
+            result |= (0xff & bys[off + i]) << (8 * i);
+        }
+        return result;
+    }
+
+    /**
+     * 小端顺序存储的内容转换为相应的数值，最多8bytes。
+     * 
+     * @param bys
+     * @param off
+     * @param len
+     * @return 返回转换后的值，如果len > 8 , 则返回前8位的值。
+     * @throws Exception
+     */
+    public static int litterEndianToInt(byte[] bys, int off, int len) {
+        if (len > 4)
+            len = 4;
+        int result = 0;
         for (int i = len - 1; i >= 0; i--) {
             result |= (0xff & bys[off + i]) << (8 * i);
         }
@@ -109,26 +129,23 @@ public class DecodeUtils {
         }
         return charset;
     }
+
     /**
      * mysql length-coeded integer的解码
      * 
      * 将来可能会用到
      */
-    public static MysqlLengthEncodedInteger mysqlLengthCodedIntDecode(
-            byte[] data, int offset) {
+    public static MysqlLengthEncodedInteger mysqlLengthCodedIntDecode(byte[] data, int offset) {
         if (null == data || data.length < offset + 1)
             return new MysqlLengthEncodedInteger(0L, 0, true);
         int first = BasicUtils.u(data[offset]);
         switch (first) {
             case 0xfc :
-                return new MysqlLengthEncodedInteger(
-                        litterEndianToLong(data, offset + 1, 2), 2, false);
+                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 2), 2, false);
             case 0xfd :
-                return new MysqlLengthEncodedInteger(
-                        litterEndianToLong(data, offset + 1, 3), 3, false);
+                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 3), 3, false);
             case 0xfe :
-                return new MysqlLengthEncodedInteger(
-                        litterEndianToLong(data, offset + 1, 8), 8, false);
+                return new MysqlLengthEncodedInteger(litterEndianToLong(data, offset + 1, 8), 8, false);
         }
         if (first >= 0xfb)
             return new MysqlLengthEncodedInteger(0L, 0, true);;
@@ -145,9 +162,8 @@ public class DecodeUtils {
      * @param len
      *            长度
      */
-    public static BSONObject bytesToBson(byte[] data, int off, int len) {
-        if (null == data || data.length < 1 || off < 0 || len < 0
-                || off + len > data.length)
+    public static BSONObject bytesToBSONObject(byte[] data, int off, int len) {
+        if (null == data || data.length < 1 || off < 0 || len < 0 || off + len > data.length)
             return null;
         BSONObject bson = null;
         ByteArrayInputStream in = new ByteArrayInputStream(data, off, len);
@@ -161,6 +177,36 @@ public class DecodeUtils {
         }
     }
 
+    /**
+     * 将字节码按照c风格来转换成String对象。
+     * 
+     * @param data
+     *            待解析的数据
+     * @param off
+     *            起始位置
+     * @param len
+     *            界限
+     */
+    public static String bytesToString(byte[] data, int off, int len) {
+        if (null == data || data.length < 1 || off < 0 || len < 0 || off + len > data.length)
+            return null;
+        int i, end;
+        for (i = off; i < len; ++i) {
+            if (0x00 == data[i])
+                break;
+        }
+        end = i + 1;
+        if (end > len)
+            return "";
+        try {
+            return new String(data, off, i, "UTF-8");
+        } catch (Exception e) {
+            // e.printStackTrace();
+            return "";
+        }
+    }
+
+    /***/
     public static boolean isMongoDBCommand(String key, String value) {
         boolean result = false;
         for (String command : MongDBCommand.commands) {

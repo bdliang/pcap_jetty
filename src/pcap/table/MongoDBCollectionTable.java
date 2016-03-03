@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pcap.record.MongoDBCollectionRecord;
-import pcap.record.MysqlServerRecord;
+import pcap.utils.BasicUtils;
 
 public class MongoDBCollectionTable implements TableAction {
     /**
@@ -33,9 +33,28 @@ public class MongoDBCollectionTable implements TableAction {
         return single;
     }
 
-    public MysqlServerRecord getMysqlServerRecord(int ip, int port) {
-        // TODO Auto-generated method stub
-        return null;
+    public MongoDBCollectionRecord getMongoDBCollectionRecord(int ip, int port,
+            String name) {
+
+        MongoDBCollectionRecord record = null;
+        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(name))
+            return null;
+
+        long key = BasicUtils.ping2Int(ip, port);
+        Map<String, MongoDBCollectionRecord> subMap = mongodbMap.get(key);
+        if (null == subMap) {
+            subMap = new HashMap<String, MongoDBCollectionRecord>();
+            record = new MongoDBCollectionRecord(ip, port, name);
+            subMap.put(name, record);
+            mongodbMap.put(key, subMap);
+        } else {
+            record = subMap.get(name);
+            if (null == record) {
+                record = new MongoDBCollectionRecord(ip, port, name);
+                subMap.put(name, record);
+            }
+        }
+        return record;
     }
 
     /* 整体查找 */
