@@ -77,40 +77,17 @@ public class MongoDBDecode {
                 System.out.println("\tcollectionName : " + collectionName + "### " + collectionName.length());
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
-                int collectionLength = collectionName.length();
+                int oldCollectionLength = collectionName.length();
                 int endIndex = collectionName.indexOf(MongDBCommand.COMMAND_FLAG);
                 MongoDBItems item = null;
                 if (-1 != endIndex && endIndex + MongDBCommand.COMMAND_FLAG.length() == collectionName.length()) {
                     collectionName = collectionName.substring(0, endIndex);
-                    int bsonLength = DecodeUtils.litterEndianToInt(payload, off + 20 + collectionLength + 1 + 8, 4);
-                    // int tmpOff = off + 20 + collectionName.length() + 1 + 8;
-                    //
-                    // System.out.print("$$$$ " + tmpOff + " $$$" +
-                    // Integer.toHexString(payload[tmpOff - 1]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 0]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 1]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 2]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 3]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 4]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 5]));
-                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
-                    // + 6]));
-                    // System.out.println();
-
-                    // System.out.println("here0 : " + bsonLength);
+                    int bsonLength = DecodeUtils.litterEndianToInt(payload, off + 20 + oldCollectionLength + 1 + 8, 4);
                     if (bsonLength < 5)
                         return false;
-                    // System.out.println("here1");
-                    BSONObject obj = DecodeUtils.bytesToBSONObject(payload, off + 20 + collectionLength + 1 + 8, bsonLength);
+                    BSONObject obj = DecodeUtils.bytesToBSONObject(payload, off + 20 + oldCollectionLength + 1 + 8, bsonLength);
                     if (null == obj)
                         return false;
-                    // System.out.println("here2");
                     System.out.println(obj.toString());
                     String cmd = null;
                     for (String key : obj.keySet()) {
@@ -180,7 +157,7 @@ public class MongoDBDecode {
                 break;
 
             case MongDBOpCode.OP_INSERT :
-                if (len < 27 || !clientToServer)
+                if (len < 22 || !clientToServer)
                     return false;
 
                 System.out.println("insert");
