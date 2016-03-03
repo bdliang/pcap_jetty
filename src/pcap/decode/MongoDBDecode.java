@@ -75,14 +75,15 @@ public class MongoDBDecode {
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
+                int oldCollectionLength = collectionName.length();
                 int endIndex = collectionName.indexOf(MongDBCommand.COMMAND_FLAG);
                 MongoDBItems item = null;
                 if (-1 != endIndex && endIndex + MongDBCommand.COMMAND_FLAG.length() == collectionName.length()) {
                     collectionName = collectionName.substring(0, endIndex);
-                    int bsonLength = DecodeUtils.litterEndianToInt(payload, off + 20 + collectionName.length(), 4);
+                    int bsonLength = DecodeUtils.litterEndianToInt(payload, off + 20 + oldCollectionLength + 1 + 8, 4);
                     if (bsonLength < 5)
                         return false;
-                    BSONObject obj = DecodeUtils.bytesToBSONObject(payload, off + 20 + collectionName.length(), bsonLength);
+                    BSONObject obj = DecodeUtils.bytesToBSONObject(payload, off + 20 + oldCollectionLength + 1 + 8, bsonLength);
                     if (null == obj)
                         return false;
                     String cmd = null;
@@ -128,7 +129,7 @@ public class MongoDBDecode {
                 break;
 
             case MongDBOpCode.OP_REPLY :
-                if (len < 41 || clientToServer)
+                if (len < 36 || clientToServer)
                     return false;
                 int status = record.getStatus();
                 if (TcpStatus.MONGODB_QUERY_START == status || TcpStatus.MONGODB_GET_MORE == status) {
@@ -146,8 +147,9 @@ public class MongoDBDecode {
                 break;
 
             case MongDBOpCode.OP_INSERT :
-                if (len < 27 || !clientToServer)
+                if (len < 22 || !clientToServer)
                     return false;
+
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
@@ -161,6 +163,7 @@ public class MongoDBDecode {
             case MongDBOpCode.OP_DELETE :
                 if (len <= 24 || !clientToServer)
                     return false;
+
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
@@ -174,6 +177,7 @@ public class MongoDBDecode {
             case MongDBOpCode.OP_UPDATE :
                 if (len < 36 || !clientToServer)
                     return false;
+
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
