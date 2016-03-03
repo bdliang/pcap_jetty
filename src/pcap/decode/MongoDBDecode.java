@@ -74,19 +74,43 @@ public class MongoDBDecode {
 
                 System.out.println("query");
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
-                System.out.println("collectionName : " + collectionName + "### " + collectionName.length());
+                System.out.println("\tcollectionName : " + collectionName + "### " + collectionName.length());
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
+                int collectionLength = collectionName.length();
                 int endIndex = collectionName.indexOf(MongDBCommand.COMMAND_FLAG);
                 MongoDBItems item = null;
                 if (-1 != endIndex && endIndex + MongDBCommand.COMMAND_FLAG.length() == collectionName.length()) {
                     collectionName = collectionName.substring(0, endIndex);
-                    int bsonLength = DecodeUtils.litterEndianToInt(payload, off + 20 + collectionName.length(), 4);
+                    int bsonLength = DecodeUtils.litterEndianToInt(payload, off + 20 + collectionLength + 1 + 8, 4);
+                    // int tmpOff = off + 20 + collectionName.length() + 1 + 8;
+                    //
+                    // System.out.print("$$$$ " + tmpOff + " $$$" +
+                    // Integer.toHexString(payload[tmpOff - 1]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 0]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 1]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 2]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 3]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 4]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 5]));
+                    // System.out.print(" " + Integer.toHexString(payload[tmpOff
+                    // + 6]));
+                    // System.out.println();
+
+                    // System.out.println("here0 : " + bsonLength);
                     if (bsonLength < 5)
                         return false;
-                    BSONObject obj = DecodeUtils.bytesToBSONObject(payload, off + 20 + collectionName.length(), bsonLength);
+                    // System.out.println("here1");
+                    BSONObject obj = DecodeUtils.bytesToBSONObject(payload, off + 20 + collectionLength + 1 + 8, bsonLength);
                     if (null == obj)
                         return false;
+                    // System.out.println("here2");
                     System.out.println(obj.toString());
                     String cmd = null;
                     for (String key : obj.keySet()) {
@@ -112,7 +136,7 @@ public class MongoDBDecode {
                 record.setTimeStamp(timeStamp);
                 mongoRecord.addItem(item);
                 record.setInfo(collectionName);
-                System.out.println("decode success");
+                System.out.println("## decode success");
                 break;
 
             case MongDBOpCode.OP_GET_MORE :
@@ -121,7 +145,7 @@ public class MongoDBDecode {
 
                 System.out.println("getmore");
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
-                System.out.println("collectionName : " + collectionName);
+                System.out.println("\tcollectionName : " + collectionName);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
                 mongoRecord = MongoDBCollectionTable.getInstance().getMongoDBCollectionRecord(record.typeIp(), record.typePort(),
@@ -132,10 +156,11 @@ public class MongoDBDecode {
                 record.setTimeStamp(timeStamp);
                 mongoRecord.addItem(MongoDBItems.GETMORE);
                 record.setInfo(collectionName);
+                System.out.println("## decode success");
                 break;
 
             case MongDBOpCode.OP_REPLY :
-                if (len < 41 || clientToServer)
+                if (len < 36 || clientToServer)
                     return false;
                 System.out.println("reply");
                 int status = record.getStatus();
@@ -150,6 +175,7 @@ public class MongoDBDecode {
                     int flags = DecodeUtils.litterEndianToInt(payload, off + 16, 4);
                     if (0 != (flags & MongDBCommand.FLAG_HAVE_ERRORS))
                         mongoRecord.addItem(MongoDBItems.ERROR);
+                    System.out.println("## decode success");
                 }
                 break;
 
@@ -159,7 +185,7 @@ public class MongoDBDecode {
 
                 System.out.println("insert");
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
-                System.out.println("collectionName : " + collectionName);
+                System.out.println("\tcollectionName : " + collectionName);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
                 mongoRecord = MongoDBCollectionTable.getInstance().getMongoDBCollectionRecord(record.typeIp(), record.typePort(),
@@ -167,6 +193,7 @@ public class MongoDBDecode {
                 if (null == mongoRecord)
                     return false;
                 mongoRecord.addItem(MongoDBItems.INSERT);
+                System.out.println("## decode success");
                 break;
 
             case MongDBOpCode.OP_DELETE :
@@ -175,7 +202,7 @@ public class MongoDBDecode {
 
                 System.out.println("delete");
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
-                System.out.println("collectionName : " + collectionName);
+                System.out.println("\tcollectionName : " + collectionName);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
                 mongoRecord = MongoDBCollectionTable.getInstance().getMongoDBCollectionRecord(record.typeIp(), record.typePort(),
@@ -183,6 +210,7 @@ public class MongoDBDecode {
                 if (null == mongoRecord)
                     return false;
                 mongoRecord.addItem(MongoDBItems.DELETE);
+                System.out.println("## decode success");
                 break;
 
             case MongDBOpCode.OP_UPDATE :
@@ -191,7 +219,7 @@ public class MongoDBDecode {
 
                 System.out.println("update");
                 collectionName = DecodeUtils.bytesToString(payload, off + 20, len);
-                System.out.println("collectionName : " + collectionName);
+                System.out.println("\tcollectionName : " + collectionName);
                 if (BasicUtils.isStringBlank(collectionName))
                     return false;
                 mongoRecord = MongoDBCollectionTable.getInstance().getMongoDBCollectionRecord(record.typeIp(), record.typePort(),
@@ -199,6 +227,7 @@ public class MongoDBDecode {
                 if (null == mongoRecord)
                     return false;
                 mongoRecord.addItem(MongoDBItems.UPDATE);
+                System.out.println("## decode success");
                 break;
 
             case MongDBOpCode.OP_KILL_CURSORS :
