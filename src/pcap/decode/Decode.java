@@ -16,9 +16,9 @@ public class Decode {
         if (0 == type.length()) {
             return;
         } else if (type.equals("http")) {
-            HttpDecode.decode(tcp, record, timeStamp);
+            // HttpDecode.decode(tcp, record, timeStamp);
         } else if (type.equals("mysql")) {
-            MysqlDecode.decode(tcp, record, timeStamp);
+            // MysqlDecode.decode(tcp, record, timeStamp);
         } else if (type.equals("pgsql")) {
         } else if (type.equals("mongodb")) {
             MongoDBDecode.decode(tcp, record, timeStamp);
