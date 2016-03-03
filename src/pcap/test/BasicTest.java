@@ -1,22 +1,54 @@
 package pcap.test;
 
-import pcap.record.MysqlServerRecord.MysqlItems;
-import pcap.utils.BasicUtils;
-import pcap.utils.CompressUtils;
-import pcap.utils.DecodeUtils;
+import org.bson.BSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import pcap.constant.MongDBCommand;
+import pcap.constant.MongDBOpCode;
+import pcap.record.MysqlServerRecord.MysqlItems;
+import pcap.utils.BasicUtils;
+import pcap.utils.CompressUtils;
+import pcap.utils.DecodeUtils;
+
 public class BasicTest {
 
     public static void main(String[] args) {
-        test12();
+        test22();
+    }
+
+    public static void test22() {
+
+        byte[] data = {0x01, 0x02, (byte) 0xff, (byte) 0xff, 0x05};
+
+        int tmp = DecodeUtils.litterEndianToInt(data, 0, 4);
+        System.out.println(Integer.toHexString(tmp) + " : " + tmp);
+    }
+
+    public static void test21() {
+        System.out.println(Integer.toBinaryString(MongDBCommand.FLAG_CURSOR_NOT_FOUND));
+        System.out.println(Integer.toBinaryString(MongDBCommand.FLAG_QUERY_FAILURE));
+        System.out.println(Integer.toBinaryString(MongDBCommand.FLAG_HAVE_ERRORS));
+
+        if (0 != (0x01 & MongDBCommand.FLAG_HAVE_ERRORS)) {
+            System.out.println("yes");
+        }
+        if (0 != (0x02 & MongDBCommand.FLAG_HAVE_ERRORS)) {
+            System.out.println("yes");
+        }
+        if (0 != (0x03 & MongDBCommand.FLAG_HAVE_ERRORS)) {
+            System.out.println("yes");
+        }
+        if (0 != ((0x01 | 1241) & MongDBCommand.FLAG_HAVE_ERRORS)) {
+            System.out.println("yes");
+        }
     }
 
     public static void test1() {
@@ -98,7 +130,7 @@ public class BasicTest {
 
     /**
      * 测试u1()正确性
-     * */
+     */
     public static void test5() {
         int cnt = 0;
         byte i = 0;
@@ -181,7 +213,8 @@ public class BasicTest {
 
     public static void test10() {
         // String str =
-        // "78 9c d3 63 60 60 60 2e  4e cd 49 4d 2e 51 50 32 30 34 32 36 31 35 33 b7  b0 c4 cd 52 02 00 0c d1 0a 6c ";
+        // "78 9c d3 63 60 60 60 2e 4e cd 49 4d 2e 51 50 32 30 34 32 36 31 35 33
+        // b7 b0 c4 cd 52 02 00 0c d1 0a 6c ";
         // byte[] data = charNumToBytes(str);
         // printBytes(data);
         // data = CompressUtils.decompress(data, 0, data.length, 45);
@@ -263,5 +296,126 @@ public class BasicTest {
         }
 
         System.out.println("hh");
+    }
+
+    public static void test13() {
+        byte[] payload = new byte[20];
+        int i = 0;
+        for (i = 0; i < payload.length; ++i)
+            payload[i] = (byte) 0xff;
+        for (i = 0; i < payload.length; ++i) {
+            System.out.print((payload[i]) + " ");
+        }
+        System.out.println();
+
+        int tmp = (int) DecodeUtils.litterEndianToLong(payload, 0, 4);
+        System.out.println(tmp);
+    }
+
+    public static void test14() {
+        int tmp, i = 0;
+        tmp = MongDBOpCode.OP_DELETE;
+        System.out.println(MongDBOpCode.isOpCodeValid(tmp) + " " + ++i);
+    }
+
+    public static void test15() {
+        String str = "awesome";
+        for (char c : str.toCharArray()) {
+            System.out.print(Integer.toHexString(c) + " ");
+        }
+        System.out.println();
+    }
+
+    /**
+     * bson 测试
+     */
+    public static void test16() {
+        String str = "16 00 00 00 02 68 65 6c 6c 6f 00 06 00 00 00 77 6f 72 6c 64 00 00 ";
+        byte[] data = charNumToBytes(str);
+        BSONObject tmp = null;
+        tmp = DecodeUtils.bytesToBSONObject(data, 0, data.length);
+        System.out.println(tmp.toString());
+        String str1 = "31 00 00 00 04 42 53 4f 4e 00 26 00 00 00 02 30 00 08 00 00 00 61 77 65 73 6f 6d 65 00 01 31 00 33 33 33 33 33 33 14 40 10 32 00 c2 07 00 00 00 00 ";
+        data = charNumToBytes(str1);
+        tmp = DecodeUtils.bytesToBSONObject(data, 0, data.length);
+        System.out.println(tmp.toString());
+
+        for (String strTmp : tmp.keySet()) {
+            System.out.println(strTmp + " : " + tmp.get(strTmp));
+        }
+    }
+
+    public static void test17() {
+        // for (String str : MongDBCommand.commands) {
+        // System.out.println(str);
+        // }
+        // System.out.println("####################\n");
+        // Arrays.sort(MongDBCommand.commands);
+        // for (String str : MongDBCommand.commands) {
+        // System.out.println(str);
+        // }
+
+        String str = MongDBCommand.getMongDBCommand(0);
+        System.out.println(str);
+        Arrays.sort(MongDBCommand.commands);
+        str = MongDBCommand.getMongDBCommand(0);
+        System.out.println(str);
+    }
+
+    public static void test19() {
+        System.out.println(Charset.defaultCharset().name());
+    }
+
+    public static void test18() {
+        int tmp = 2;
+        switch (tmp) {
+            case 1 :
+                System.out.println("1");
+                System.out.println("1");
+                break;
+            case 2 :
+                System.out.println("2");
+                System.out.println("2");
+                break;
+            case 3 :
+                System.out.println("3");
+                System.out.println("3");
+                break;
+            case 4 :
+                System.out.println("4");
+                System.out.println("4");
+                break;
+            case 5 :
+                System.out.println("5");
+                System.out.println("5");
+                break;
+            default :
+                System.out.println("default");
+        }
+    }
+
+    public static void test20() {
+        String str = "abcdefghijklmn";
+        byte[] data = new byte[str.length() + 1];
+        int i = 0;
+        int length = 4;
+        for (i = 0; i < str.length(); ++i) {
+            data[i] = (byte) str.charAt(i);
+            if (length == i)
+                data[i] = 0x00;
+        }
+        data[i] = 0x00;
+        String re = null;
+        // re = DecodeUtils.bytesToString(data, 0, data.length);
+        re = DecodeUtils.bytesToString(data, 0, length + 1);
+        System.out.println(re.length() + " : " + re);
+        System.out.println("#####");
+
+        String sub = "lmn";
+        int endIndex = str.indexOf(sub);
+        System.out.println(endIndex);
+        System.out.println(sub.length());
+        System.out.println(str.length());
+        System.out.println(str.substring(0, endIndex));
     }
 }

@@ -2,6 +2,8 @@ package pcap.decode;
 
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+import java.nio.charset.Charset;
+
 import pcap.constant.MysqlCapabilityFlag;
 import pcap.constant.MysqlClientRequestType;
 import pcap.constant.TcpStatus;
@@ -13,8 +15,6 @@ import pcap.utils.BasicUtils;
 import pcap.utils.CompressUtils;
 import pcap.utils.DecodeUtils;
 
-import java.nio.charset.Charset;
-
 public class MysqlDecode {
 
     private static final int NOT_COMPRESS_HEADER_LENGTH = 4;
@@ -25,7 +25,7 @@ public class MysqlDecode {
             return;
 
         byte[] payload = tcp.getPayload();
-        if (payload.length < 5)
+        if (payload.length <= NOT_COMPRESS_HEADER_LENGTH)
             return;
 
         // / 如果是加密的, 不解析
@@ -45,12 +45,13 @@ public class MysqlDecode {
 
         // 处理多个mysql包在一个tcp， 也适用于1:1的关系。
         for (currentOffset = 0; currentOffset < totalLength - 4;) {
-            currentMysqlLength = (int) DecodeUtils.litterEndianToLong(payload, currentOffset, 3);
+            currentMysqlLength = DecodeUtils.litterEndianToInt(payload, currentOffset, 3);
             nextOffset = currentOffset + headerLength + currentMysqlLength;
             // 如果长度不符合逻辑
             if (nextOffset > totalLength)
                 break;
-            decode0(payload, currentOffset, currentMysqlLength, record, timeStamp, clientToServer, compress);
+            if (!decode0(payload, currentOffset, currentMysqlLength, record, timeStamp, clientToServer, compress))
+                return;
             currentOffset = nextOffset;
         }
     }
@@ -83,23 +84,23 @@ public class MysqlDecode {
      * @param compress
      *            用来表明该mysql包是否是压缩后的包
      * 
-     * */
-    private static void decode0(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp, boolean clientToServer,
+     */
+    private static boolean decode0(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp, boolean clientToServer,
             boolean compress) {
 
         int headerLength = (compress ? COMPRESSED_HEADER_LENGTH : NOT_COMPRESS_HEADER_LENGTH);
 
         if (null == payload || null == record || offset < 0 || mysqlLength <= 0 || (offset + headerLength + mysqlLength) > payload.length)
-            return;
+            return false;
 
-        long unCompressedLength = 0L;
+        int unCompressedLength = 0;
         if (compress) {
-            if (0L != (unCompressedLength = DecodeUtils.litterEndianToLong(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 3))) {
+            if (0L != (unCompressedLength = DecodeUtils.litterEndianToInt(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 3))) {
                 payload = CompressUtils.zlibDecompress(payload, offset + COMPRESSED_HEADER_LENGTH, mysqlLength);
                 if (null == payload || payload.length != unCompressedLength)
-                    return;
+                    return false;
                 offset = 0;
-                mysqlLength = (int) DecodeUtils.litterEndianToLong(payload, offset, 3);
+                mysqlLength = DecodeUtils.litterEndianToInt(payload, offset, 3);
             }
         }
 
@@ -108,21 +109,22 @@ public class MysqlDecode {
          * 
          * 如果需要，参考 MysqlDecode.decode();
          * 
-         * */
+         */
 
         int seq = BasicUtils.u(payload[offset + 3]);
         int requestType = BasicUtils.u(payload[offset + headerLength]);
         MysqlServerRecord mysqlServerRecord = MysqlServerTable.getInstance().getMysqlServerRecord(record.typeIp(), record.typePort());
         if (null == mysqlServerRecord)
-            return;
+            return false;
 
         if (!clientToServer && 0 == seq) {
             // 表明是handshake.
-            record.setStatus(TcpStatus.HANDSHAKE_REQUEST);
+            record.setStatus(TcpStatus.MYSQL_HANDSHAKE_REQUEST);
+
         } else if (clientToServer && 0 == seq) {
             // 可能是 query
             if (MysqlClientRequestType.COM_QUERY == requestType) {
-                record.setStatus(TcpStatus.START_QUERY);
+                record.setStatus(TcpStatus.MYSQL_QUERY_START);
                 record.setTimeStamp(timeStamp);
 
                 // !!!尚未完成需要利用 . record中记录的值来判断字符集
@@ -140,7 +142,7 @@ public class MysqlDecode {
                     }
                 }
                 if (null == item || MysqlItems.OTHER == item)
-                    return;
+                    return false;
                 mysqlServerRecord.addItem(item);
             } else if (MysqlClientRequestType.COM_QUIT == requestType) {
                 // 因为记录mysql ssl, compress，
@@ -153,26 +155,27 @@ public class MysqlDecode {
 
         } else if (!clientToServer && 0 != seq) {
             // 可能是server对于query的回复
-            if (TcpStatus.START_QUERY != record.getStatus())
-                return;
+            if (TcpStatus.MYSQL_QUERY_START != record.getStatus())
+                return false;
             if (0x00 == requestType) {
                 // OK包
-                record.setStatus(TcpStatus.ANSR_QUERY_OK);
+                record.setStatus(TcpStatus.MYSQL_QUERY_ANS_OK);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
             } else if (0xff == requestType) {
                 // ERROR包
-                record.setStatus(TcpStatus.ANSR_QUERY_ERROR);
+                record.setStatus(TcpStatus.MYSQL_QUERY_ANS_ERROR);
                 mysqlServerRecord.addItem(MysqlItems.ERROR);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
             } else {
                 // resultSet
-                record.setStatus(TcpStatus.END_QUERY);
+                record.setStatus(TcpStatus.MYSQL_QUERY_END);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
             }
+
         } else if (clientToServer && 1 == seq) {
-            // 可能是客户端回复handshake
-            decodeHandShakeC2S(payload, offset, mysqlLength, record, timeStamp);
+            return decodeHandShakeC2S(payload, offset, mysqlLength, record, timeStamp);
         }
+        return true;
 
     }
     /**
@@ -181,15 +184,16 @@ public class MysqlDecode {
      *            包括mysql包包头的offset
      * @param mysqlLength
      *            从mysql包包头中解析出该包的长度，即除去包头的长度
-     * */
-    private static void decodeHandShakeC2S(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp) {
+     */
+    private static boolean decodeHandShakeC2S(byte[] payload, int offset, int mysqlLength, TcpRecord record, long timeStamp) {
         if (null == payload || null == record || offset < 0 || mysqlLength <= 0 || ((offset + mysqlLength) > payload.length))
-            return;
-        if (TcpStatus.HANDSHAKE_REQUEST != record.getStatus())
-            return;
-        record.setStatus(TcpStatus.HANDSHAKE_RESPONSE);
+            return false;
+        // 可能是客户端回复handshake
+        if (TcpStatus.MYSQL_HANDSHAKE_REQUEST != record.getStatus())
+            return false;
+        record.setStatus(TcpStatus.MYSQL_HANDSHAKE_RESPONSE);
         boolean mysqlProtocol41 = false;
-        long capabilityFlags = DecodeUtils.litterEndianToLong(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 2);
+        int capabilityFlags = DecodeUtils.litterEndianToInt(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 2);
         if (0L != (MysqlCapabilityFlag.CLIENT_PROTOCOL_41 & capabilityFlags)) {
             mysqlProtocol41 = true;
         }
@@ -204,6 +208,8 @@ public class MysqlDecode {
 
         if (mysqlProtocol41)
             record.setCharacterSetCode(BasicUtils.u(payload[offset + NOT_COMPRESS_HEADER_LENGTH + 8]));
+
+        return true;
     }
 
 }

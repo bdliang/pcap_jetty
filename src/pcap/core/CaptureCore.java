@@ -4,13 +4,13 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapIf;
 
-import pcap.constant.BasicConstants;
-import pcap.handler.MyPcapHandler;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import pcap.constant.BasicConstants;
+import pcap.handler.MyPcapHandler;
 
 public class CaptureCore implements Runnable {
 
@@ -68,7 +68,7 @@ public class CaptureCore implements Runnable {
      *            每次抓包循环抓取包的个数
      * @param allTime
      *            是否一直抓包
-     * */
+     */
     public static void startSniff(int deviceSeq, int loopNum, int eachCatch, boolean allTime) {
         if (null == allDevs)
             allDevs = getDevices();
@@ -133,7 +133,7 @@ public class CaptureCore implements Runnable {
      * 
      * @param deviceSeq
      *            网卡设备编号， getDevices()获得的List<PcapIf>中的序号
-     * */
+     */
     public static void startSniff(int deviceSeq) {
         startSniff(deviceSeq, 10, BasicConstants.NUM_EACH_CAPTURE, false);
     }
@@ -145,7 +145,7 @@ public class CaptureCore implements Runnable {
      *            网卡设备编号， getDevices()获得的List<PcapIf>中的序号
      * @param loopNum
      *            抓包循环的次数
-     * */
+     */
     public static void startSniff(int deviceSeq, int loopNum) {
         startSniff(deviceSeq, loopNum, BasicConstants.NUM_EACH_CAPTURE, false);
     }
@@ -159,7 +159,7 @@ public class CaptureCore implements Runnable {
      *            抓包循环的次数
      * @param eachCatch
      *            每次抓包循环抓取包的个数
-     * */
+     */
     public static void startSniff(int deviceSeq, int loopNum, int eachCatch) {
         startSniff(deviceSeq, loopNum, eachCatch, false);
     }
@@ -169,14 +169,15 @@ public class CaptureCore implements Runnable {
      * 
      * @param deviceSeq
      *            网卡设备编号， getDevices()获得的List<PcapIf>中的序号
-     * */
+     */
     public static void startSniffAllTime(int deviceSeq) {
         startSniff(deviceSeq, 10000, BasicConstants.NUM_EACH_CAPTURE, true);
     }
 
     @Override
     public void run() {
-        startSniff(0, 30, 20, true);
+        // startSniff(0, 30, 20, true);
+        startSniffAllTime(1);
     }
 
 }

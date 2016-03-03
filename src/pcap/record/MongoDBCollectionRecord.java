@@ -6,14 +6,8 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
-/**
- * 用于记录Mysql的统计信息， 以mysql服务器为单位
- * 
- */
+public class MongoDBCollectionRecord {
 
-public class MysqlServerRecord {
-
-    // 用于转化json时字段控制
     public static final JsonConfig config = new JsonConfig();
     static {
         config.setExcludes(null);
@@ -24,15 +18,28 @@ public class MysqlServerRecord {
 
     private long totalTime;
     private long totalCount;
-    private Map<MysqlItems, Integer> counters;
+    private Map<MongoDBItems, Integer> counters;
+    private String tableName;
 
-    public MysqlServerRecord(int ip, int port) {
+    @Deprecated
+    public MongoDBCollectionRecord(int ip, int port) {
+        super();
         this.ip = ip;
         this.port = port;
+        this.counters = new HashMap<MongoDBItems, Integer>();
+        this.totalTime = 0;
+        this.totalCount = 0;
+        this.tableName = "";
+    }
 
-        totalTime = 0L;
-        totalCount = 0L;
-        counters = new HashMap<MysqlItems, Integer>();
+    public MongoDBCollectionRecord(int ip, int port, String name) {
+        super();
+        this.ip = ip;
+        this.port = port;
+        this.counters = new HashMap<MongoDBItems, Integer>();
+        this.totalTime = 0;
+        this.totalCount = 0;
+        this.tableName = name;
     }
 
     public void addTimeRecord(long time) {
@@ -42,8 +49,8 @@ public class MysqlServerRecord {
         ++this.totalCount;
     }
 
-    public void addItem(MysqlItems item) {
-        if (null == item || MysqlItems.OTHER == item)
+    public void addItem(MongoDBItems item) {
+        if (null == item || MongoDBItems.OTHER == item)
             return;
         Integer tmp = counters.get(item);
         if (null == tmp) {
@@ -54,11 +61,11 @@ public class MysqlServerRecord {
     }
 
     public void addItem(String str) {
-        addItem(MysqlItems.parseContentType(str));
+        addItem(MongoDBItems.parseContentType(str));
     }
 
-    public int getItemCount(MysqlItems item) {
-        if (null == item || MysqlItems.OTHER == item)
+    public int getItemCount(MongoDBItems item) {
+        if (null == item || MongoDBItems.OTHER == item)
             return 0;
         Integer cnt = counters.get(item);
         if (null == cnt) {
@@ -91,38 +98,45 @@ public class MysqlServerRecord {
         return totalCount;
     }
 
-    public Map<MysqlItems, Integer> getCounters() {
+    public Map<MongoDBItems, Integer> getCounters() {
         return counters;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
     /** getter & setter */
 
-    public enum MysqlItems {
-        SELECT("SELECT"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), COMMIT("COMMIT"), ROLLBACK("ROLLBACK"), ERROR(
-                "ERROR"), OTHER,;
+    public enum MongoDBItems {
+        FIND("FIND"), UPDATE("UPDATE"), INSERT("INSERT"), DELETE("DELETE"), GETMORE("GETMORE"), ISMASTER("ISMASTER"), ERROR(
+                "ERROR"), KILL_CURSORS("KILL_CURSORS"), OTHER,;
 
         private String desc;
 
-        private MysqlItems(String desc) {
+        private MongoDBItems(String desc) {
             this.desc = desc;
         }
-        private MysqlItems() {
+        private MongoDBItems() {
             desc = "";
         }
         public String getDesc() {
             return desc;
         }
 
-        public static MysqlItems parseContentType(String type) {
+        public static MongoDBItems parseContentType(String type) {
             if (type == null) {
                 return OTHER;
             }
 
-            for (MysqlItems t : values()) {
+            for (MongoDBItems t : values()) {
                 if (t.name().equalsIgnoreCase(type)) {
                     return t;
                 }
             }
-
             return OTHER;
         }
     }

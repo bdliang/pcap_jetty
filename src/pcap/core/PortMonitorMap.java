@@ -1,9 +1,5 @@
 package pcap.core;
 
-import pcap.constant.BasicConstants;
-import pcap.record.TcpRecord;
-import pcap.utils.BasicUtils;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+
+import pcap.constant.BasicConstants;
+import pcap.record.TcpRecord;
+import pcap.utils.BasicUtils;
 
 public class PortMonitorMap {
 
@@ -51,7 +51,7 @@ public class PortMonitorMap {
      * 如果 src端口是监控端口， 返回 OK_FOUND_SRC;如果 dst端口是监控端口， 返回 OK_FOUND_DST
      * 
      * 注意: ！！这里假设 src, dst不会同时是监控端口
-     * */
+     */
     private int hasPortForApp(String app, int srcPort, int dstPort) {
         if (!BasicUtils.isPortValid(srcPort) || !BasicUtils.isPortValid(dstPort) || BasicUtils.isStringBlank(app))
             return BasicConstants.WRONG_ARGUMENT;
@@ -76,18 +76,19 @@ public class PortMonitorMap {
      * 如果端口号不规范， WRONG_ARGUMENT
      * 
      * 没找到， NOT_FOUND
-     * */
+     */
     public int hasPort(int srcPort, int dstPort) {
         if (!BasicUtils.isPortValid(srcPort) || !BasicUtils.isPortValid(dstPort))
             return BasicConstants.WRONG_ARGUMENT;
 
         int i = 0;
         for (String str : RunTimeAppLayer) {
-            if (BasicConstants.OK_FOUND_SRC == hasPortForApp(str, srcPort, dstPort)) {
+            int index = hasPortForApp(str, srcPort, dstPort);
+            if (BasicConstants.OK_FOUND_SRC == index) {
                 return i;
             }
 
-            if (BasicConstants.OK_FOUND_DST == hasPortForApp(str, srcPort, dstPort)) {
+            if (BasicConstants.OK_FOUND_DST == index) {
                 // return i | BasicConstants.DST_PORT_ENCODE;
                 return TcpRecord.EnCode(i);
             }

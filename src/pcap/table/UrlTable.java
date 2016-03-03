@@ -1,16 +1,16 @@
 package pcap.table;
 
-import pcap.record.UrlRecord;
-import pcap.record.UrlRecord.HttpItems;
-import pcap.result.UrlLastTime;
-import pcap.utils.BasicUtils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import pcap.record.UrlRecord;
+import pcap.record.UrlRecord.HttpItems;
+import pcap.result.UrlLastTime;
+import pcap.utils.BasicUtils;
 
 public class UrlTable implements TableAction {
 
@@ -21,7 +21,7 @@ public class UrlTable implements TableAction {
      * Map<String, UrlRecord> 再利用url -> UrlRecord。
      * 
      * 提供整体的和某个ip或某对ip/port或某个url的相关统计和响应时间
-     * */
+     */
     private static UrlTable single;
 
     private Map<Long, Map<String, UrlRecord>> urlMap;
@@ -54,7 +54,7 @@ public class UrlTable implements TableAction {
      * 在UrlTable中， 查找 ip, port, url对应的记录
      * 
      * @return 存在记录则返回该记录；否则新建一个记录加入到表中并返回该记录。如果有不符合条件的，则返回null
-     * */
+     */
     public UrlRecord getUrlRecord(int ip, int port, String url) {
         UrlRecord record = null;
         if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
@@ -80,7 +80,7 @@ public class UrlTable implements TableAction {
     /* 整体查找 */
     /**
      * 获得所有item属性的个数
-     * */
+     */
     public int getCount(HttpItems item) {
         if (null == item || HttpItems.OTHER == item)
             return 0;
@@ -95,7 +95,7 @@ public class UrlTable implements TableAction {
 
     /**
      * 返回所有url的平均响应时间
-     * */
+     */
     public double getAvgTime() {
         long time = 0;
         long cnt = 0;
@@ -109,7 +109,7 @@ public class UrlTable implements TableAction {
     }
 
     /* 根据url查找 */
-    public int getCount(String url, HttpItems item) {
+    public int getCountByUrl(String url, HttpItems item) {
         if (BasicUtils.isStringBlank(url) || null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
@@ -199,7 +199,7 @@ public class UrlTable implements TableAction {
 
     /* 根据ip/port/url查找 */
     public int getCountByIpPortUrl(int ip, int port, String url, HttpItems item) {
-        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url))
+        if (!BasicUtils.isPortValid(port) || BasicUtils.isStringBlank(url) || null == item || HttpItems.OTHER == item)
             return 0;
         int cnt = 0;
         long key = BasicUtils.ping2Int(ip, port);
