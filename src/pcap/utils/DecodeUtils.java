@@ -194,11 +194,9 @@ public class DecodeUtils {
 
         int i, end;
         for (i = off; i < len; ++i) {
-            System.out.print((char) data[i] + " ");
             if (0x00 == data[i])
                 break;
         }
-        System.out.println(i);
         end = i + 1;
         if (end > len)
             return null;
