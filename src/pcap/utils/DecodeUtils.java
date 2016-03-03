@@ -188,8 +188,10 @@ public class DecodeUtils {
      *            界限
      */
     public static String bytesToString(byte[] data, int off, int len) {
-        if (null == data || data.length < 1 || off < 0 || len < 0 || off + len > data.length)
+
+        if (null == data || data.length < 1 || off < 0 || len < 0 || len > data.length)
             return null;
+
         int i, end;
         for (i = off; i < len; ++i) {
             if (0x00 == data[i])
@@ -197,12 +199,11 @@ public class DecodeUtils {
         }
         end = i + 1;
         if (end > len)
-            return "";
+            return null;
         try {
-            return new String(data, off, i, "UTF-8");
+            return new String(data, off, i - off, "UTF-8");
         } catch (Exception e) {
-            // e.printStackTrace();
-            return "";
+            return null;
         }
     }
 
