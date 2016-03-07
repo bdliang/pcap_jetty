@@ -144,6 +144,7 @@ public class MysqlDecode {
                 if (null == item || MysqlItems.OTHER == item)
                     return false;
                 mysqlServerRecord.addItem(item);
+
             } else if (MysqlClientRequestType.COM_QUIT == requestType) {
                 // 因为记录mysql ssl, compress，
                 // charset选项的是TcpRecord，每个对象记录在TcpTable中，TcpTable会定时清理，所以当一个mysql连接跨越1个监测周期时，如果有compress,ssl,char
@@ -161,15 +162,18 @@ public class MysqlDecode {
                 // OK包
                 record.setStatus(TcpStatus.MYSQL_QUERY_ANS_OK);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
+
             } else if (0xff == requestType) {
                 // ERROR包
                 record.setStatus(TcpStatus.MYSQL_QUERY_ANS_ERROR);
                 mysqlServerRecord.addItem(MysqlItems.ERROR);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
+
             } else {
                 // resultSet
                 record.setStatus(TcpStatus.MYSQL_QUERY_END);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
+
             }
 
         } else if (clientToServer && 1 == seq) {
