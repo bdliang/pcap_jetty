@@ -36,7 +36,7 @@ public class PacketMatch {
     public void handleTcp(PcapPacket packet) {
 
         if (!packet.hasHeader(ip)) {
-            System.err.println("It is a tcp packet, but not ip packet!");
+            // System.err.println("It is a tcp packet, but not ip packet!");
             return;
         }
 

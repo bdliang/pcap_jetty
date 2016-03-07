@@ -1,22 +1,21 @@
 package org.jetty.demo;
 
+import java.util.concurrent.TimeUnit;
+
 import pcap.core.CaptureCore;
 import pcap.core.SniffInit;
-import pcap.task.PcapCleanTask;
-import pcap.task.PcapLogTask;
 import pcap.task.TaskManager;
-
-import java.util.concurrent.TimeUnit;
 
 public class SniffServerStart {
 
     public static void startSniff() {
         SniffInit.init();
         TaskManager manager = new TaskManager();
-        PcapCleanTask cleanTask = new PcapCleanTask("clean", 60, 60, TimeUnit.SECONDS);
-        PcapLogTask logTask = new PcapLogTask("log", 5, 5, TimeUnit.SECONDS);
-        manager.addPeriodTaskAt(cleanTask);
-        manager.addPeriodTaskAt(logTask);
+        // PcapCleanTask cleanTask = new PcapCleanTask("clean", 60, 60,
+        // TimeUnit.SECONDS);
+        // PcapLogTask logTask = new PcapLogTask("log", 5, 5, TimeUnit.SECONDS);
+        // manager.addPeriodTaskAt(cleanTask);
+        // manager.addPeriodTaskAt(logTask);
         manager.addOnceTask(new CaptureCore(), 0, TimeUnit.SECONDS);
     }
 

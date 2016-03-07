@@ -119,19 +119,27 @@ public class MysqlDecode {
 
         if (!clientToServer && 0 == seq) {
             // 表明是handshake.
+            System.out.println("handshake server");
             record.setStatus(TcpStatus.MYSQL_HANDSHAKE_REQUEST);
+            System.out.println("## handshake server decode\n");
 
         } else if (clientToServer && 0 == seq) {
             // 可能是 query
             if (MysqlClientRequestType.COM_QUERY == requestType) {
+                System.out.println("query");
                 record.setStatus(TcpStatus.MYSQL_QUERY_START);
                 record.setTimeStamp(timeStamp);
 
                 // !!!尚未完成需要利用 . record中记录的值来判断字符集
                 Charset charSet = DecodeUtils.charSet(record.getCharacterSetCode());
                 // !!!尚未完成需要利用 . record中记录的值来判断字符集
+                System.out.println("\t charSet = " + charSet.toString());
 
-                String sql = new String(payload, offset + headerLength + 1, (mysqlLength - 1 > 100) ? 100 : mysqlLength - 1, charSet);
+                // String sql = new String(payload, offset + headerLength + 1,
+                // (mysqlLength - 1 > 100) ? 100 : mysqlLength - 1, charSet);
+
+                String sql = new String(payload, offset + headerLength + 1, mysqlLength - 1);
+                System.out.println("\t sql = " + sql);
                 int tmpSubLength = (10 > sql.length()) ? sql.length() : 10;
                 String sqlSub = sql.substring(0, tmpSubLength).toLowerCase();
                 MysqlItems item = null;
@@ -144,13 +152,18 @@ public class MysqlDecode {
                 if (null == item || MysqlItems.OTHER == item)
                     return false;
                 mysqlServerRecord.addItem(item);
+                System.out.println("## query decode\n");
+
             } else if (MysqlClientRequestType.COM_QUIT == requestType) {
                 // 因为记录mysql ssl, compress，
                 // charset选项的是TcpRecord，每个对象记录在TcpTable中，TcpTable会定时清理，所以当一个mysql连接跨越1个监测周期时，如果有compress,ssl,char
                 // set等非默认的选项时，
                 // 会出现不能正确解包的情况。所以可能需要把不是默认选项的mysql的连接单独记录。这里用来识别mysql
                 // client主动断开连接时，与server通信的情况。可用来将对应的mysql单独记录删除。
+
+                System.out.println("quit");
                 record.setStatus(TcpStatus.MYSQL_QUIT);
+                System.out.println("## quit decode\n");
             }
 
         } else if (!clientToServer && 0 != seq) {
@@ -159,17 +172,23 @@ public class MysqlDecode {
                 return false;
             if (0x00 == requestType) {
                 // OK包
+                System.out.println("ok");
                 record.setStatus(TcpStatus.MYSQL_QUERY_ANS_OK);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
+                System.out.println("## ok decode\n");
             } else if (0xff == requestType) {
                 // ERROR包
+                System.out.println("error");
                 record.setStatus(TcpStatus.MYSQL_QUERY_ANS_ERROR);
                 mysqlServerRecord.addItem(MysqlItems.ERROR);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
+                System.out.println("## error decode\n");
             } else {
                 // resultSet
+                System.out.println("resultset");
                 record.setStatus(TcpStatus.MYSQL_QUERY_END);
                 mysqlServerRecord.addTimeRecord(timeStamp - record.getTimeStamp());
+                System.out.println("## resultset decode\n");
             }
 
         } else if (clientToServer && 1 == seq) {
@@ -191,24 +210,34 @@ public class MysqlDecode {
         // 可能是客户端回复handshake
         if (TcpStatus.MYSQL_HANDSHAKE_REQUEST != record.getStatus())
             return false;
+        System.out.println("handshake client");
         record.setStatus(TcpStatus.MYSQL_HANDSHAKE_RESPONSE);
         boolean mysqlProtocol41 = false;
         int capabilityFlags = DecodeUtils.litterEndianToInt(payload, offset + NOT_COMPRESS_HEADER_LENGTH, 2);
+
+        System.out.println("\t " + Integer.toHexString(capabilityFlags));
         if (0L != (MysqlCapabilityFlag.CLIENT_PROTOCOL_41 & capabilityFlags)) {
             mysqlProtocol41 = true;
+            System.out.println("\t CLIENT_PROTOCOL_41");
         }
 
         if (0L != (MysqlCapabilityFlag.CLIENT_COMPRESS & capabilityFlags)) {
             record.setCompress(true);
+            System.out.println("\t CLIENT_COMPRESS");
         }
 
         if (0L != (MysqlCapabilityFlag.CLIENT_SSL & capabilityFlags)) {
             record.setSSL(true);
+            System.out.println("\t CLIENT_SSL");
         }
 
-        if (mysqlProtocol41)
-            record.setCharacterSetCode(BasicUtils.u(payload[offset + NOT_COMPRESS_HEADER_LENGTH + 8]));
+        if (mysqlProtocol41) {
+            int charSetCode = BasicUtils.u(payload[offset + NOT_COMPRESS_HEADER_LENGTH + 8]);
+            record.setCharacterSetCode(charSetCode);
+            System.out.println("\t charSetCode = " + charSetCode);
+        }
 
+        System.out.println("## handshake client decode\n");
         return true;
     }
 
